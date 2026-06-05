@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MÔ HÌNH 3D TƯƠNG TÁC - VÕ NGUYÊN GIÁP</title>
+    
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* - HIỆU ỨNG TỪ TỪ SÁNG LÊN KHI VÀO TRANG --*/
+        @keyframes pageLoadFade {
+            0% { opacity: 0; filter: brightness(0) blur(5px); }
+            100% { opacity: 1; filter: brightness(1) blur(0); }
+        }
+
+        body {
+            margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden;
+            font-family: 'Lora', serif; 
+            background: radial-gradient(circle at center, #2a2a2a 0%, #0a0a0a 100%);
+            color: #f4f4f4;
+            animation: pageLoadFade 3s ease-out forwards; 
+        }
+
+        model-viewer { width: 100%; height: 100%; --poster-color: transparent; transition: all 1.5s ease-in-out; }
+
+        /* --- BÀN TAY HƯỚNG DẪN VUỐT CHẠM --- */
+        #tutorial-hand {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 3rem; color: #fff; pointer-events: none; z-index: 80;
+            text-shadow: 0 0 15px rgba(229, 193, 88, 0.8);
+            animation: swipeHand 2s infinite ease-in-out;
+            opacity: 0; visibility: hidden; transition: opacity 0.5s ease;
+        }
+        #tutorial-hand.show { opacity: 1; visibility: visible; }
+        @keyframes swipeHand {
+            0% { transform: translate(-20%, -50%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translate(-120%, -50%); opacity: 0; }
+        }
+
+        /* --- MÀN HÌNH CHÀO MỪNG --- */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 999; background: rgba(10, 10, 10, 0.5); transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        .intro-title {
+            font-family: 'Playfair Display', serif; font-size: 3.2rem; color: #e5c158;
+            letter-spacing: 4px; margin-bottom: 30px; text-shadow: 2px 2px 15px rgba(0,0,0,0.9);
+            text-align: center; font-weight: 600; text-transform: uppercase;
+        }
+
+        .lang-container { display: flex; gap: 25px; margin-bottom: 60px; }
+        .lang-btn {
+            background: transparent; border: none; color: #8c8c8c; font-family: 'Lora', serif;
+            font-size: 1.1rem; cursor: pointer; letter-spacing: 2px; transition: all 0.3s ease;
+            padding: 5px 10px; position: relative;
+        }
+        .lang-btn::after {
+            content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 1px;
+            background-color: #e5c158; transition: all 0.3s ease; transform: translateX(-50%);
+        }
+        .lang-btn.active { color: #e5c158; font-weight: 500; }
+        .lang-btn.active::after, .lang-btn:hover::after { width: 80%; }
+        .lang-btn:hover { color: #e5c158; }
+
+        #start-btn {
+            background: transparent; border: 1px solid rgba(255, 255, 255, 0.7); color: #ffffff;
+            padding: 14px 40px; border-radius: 30px; font-family: 'Lora', serif; font-size: 1.1rem;
+            cursor: pointer; letter-spacing: 1px; transition: all 0.4s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        #start-btn:hover { background: #ffffff; color: #0a0a0a; border-color: #ffffff; box-shadow: 0 4px 20px rgba(255,255,255,0.4); }
+
+        /* --- CỤM NÚT ĐIỀU KHIỂN (TOP RIGHT) --- */
+        #top-controls { position: fixed; top: 30px; right: 30px; display: flex; gap: 15px; z-index: 990; opacity: 0; pointer-events: none; transition: all 0.5s ease; }
+        #top-controls.show { opacity: 1; pointer-events: auto; }
+        .top-btn {
+            background: rgba(20, 20, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); color: #e5c158;
+            padding: 10px 22px; border-radius: 20px; font-family: 'Lora', serif; font-size: 0.9rem;
+            letter-spacing: 1px; cursor: pointer; backdrop-filter: blur(5px); white-space: nowrap; 
+            transition: all 0.3s ease;
+        }
+        .top-btn:hover { background: #e5c158; color: #0a0a0a; border-color: #e5c158; box-shadow: 0 0 15px rgba(229, 193, 88, 0.4); }
+
+        /* --- GIAO DIỆN CHÍNH (NÚT BẤM PHÍA DƯỚI) --- */
+        #main-ui { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 90; opacity: 0; pointer-events: none; transition: opacity 1.2s ease 0.5s; }
+        #main-ui.show-ui { opacity: 1; pointer-events: auto; }
+        .ui-btn {
+            background: rgba(20, 20, 20, 0.75); border: 1px solid rgba(255, 255, 255, 0.2); color: #f4f4f4;
+            padding: 12px 30px; border-radius: 25px; font-family: 'Lora', serif; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(5px);
+        }
+        .ui-btn:hover, .ui-btn.active-state { border-color: #e5c158; color: #e5c158; background: rgba(30, 30, 30, 0.9); }
+
+        .ai-btn { background: linear-gradient(135deg, #e5c158 0%, #b89224 100%) !important; color: #0a0a0a !important; font-weight: bold; border: none !important; box-shadow: 0 0 15px rgba(229, 193, 88, 0.4); }
+        .ai-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(229, 193, 88, 0.7); }
+
+        /* --- LỚP PHỦ THÔNG TIN POPUP (OVERLAYS) --- */
+        .overlay-layer {
+            position: fixed; top: 0; left: -100%; width: 380px; height: 100vh; background: rgba(15, 15, 15, 0.92);
+            box-shadow: 5px 0 25px rgba(0,0,0,0.8); z-index: 100; transition: left 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+            padding: 40px 30px; box-sizing: border-box; backdrop-filter: blur(10px); border-right: 1px solid rgba(229, 193, 88, 0.2); overflow-y: auto;
+        }
+        .overlay-layer.active { left: 0; }
+        .overlay-title { font-family: 'Playfair Display', serif; color: #e5c158; font-size: 1.8rem; margin-bottom: 20px; border-bottom: 1px solid rgba(229, 193, 88, 0.3); padding-bottom: 10px; }
+        .overlay-content { font-size: 0.95rem; line-height: 1.7; color: #cdcdcd; }
+        .overlay-content p { margin-bottom: 15px; text-align: justify; }
+
+        body.info-active model-viewer { opacity: 0.6; transform: scale(0.98); }
+        body.info-active #main-ui button:not(.active-state), body.info-active #top-controls button { pointer-events: none; opacity: 0.3; }
+
+        /* --- KHU VỰC AI DIALOG --- */
+        #ai-panel {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
+            width: 500px; max-width: 90vw; background: rgba(20, 20, 20, 0.98); border: 1px solid #e5c158;
+            border-radius: 15px; padding: 30px 25px 25px; box-sizing: border-box; z-index: 1000; opacity: 0; visibility: hidden;
+            transition: all 0.3s ease; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; backdrop-filter: blur(15px);
+        }
+        #ai-panel.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+        
+        .ai-close-icon {
+            position: absolute; top: 15px; right: 20px; background: none; border: none;
+            color: #8c8c8c; font-size: 1.8rem; cursor: pointer; transition: color 0.3s; padding: 0; line-height: 1;
+        }
+        .ai-close-icon:hover { color: #e5c158; }
+
+        .ai-status { font-size: 1.1rem; color: #e5c158; margin-bottom: 15px; font-weight: 500; }
+        
+        .ai-result-box {
+            background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(229, 193, 88, 0.2); border-radius: 8px;
+            padding: 15px; min-height: 60px; max-height: 180px; overflow-y: auto; margin-bottom: 15px;
+            text-align: left; color: #dddddd; line-height: 1.6; font-size: 0.95rem;
+        }
+
+        /* Gợi ý câu hỏi */
+        .prompt-suggestions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 18px; }
+        .prompt-chip {
+            background: rgba(229, 193, 88, 0.1); border: 1px solid rgba(229, 193, 88, 0.4); color: #e5c158;
+            padding: 6px 14px; border-radius: 15px; font-size: 0.85rem; font-family: 'Lora', serif;
+            cursor: pointer; transition: all 0.3s; white-space: nowrap;
+        }
+        .prompt-chip:hover { background: rgba(229, 193, 88, 0.3); transform: translateY(-2px); }
+
+        .ai-input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        .ai-text-input {
+            flex: 1; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(229, 193, 88, 0.6);
+            border-radius: 20px; padding: 10px 15px; color: #fff; font-family: 'Lora', serif; font-size: 0.95rem;
+            outline: none; transition: all 0.3s;
+        }
+        .ai-text-input:focus { border-color: #e5c158; box-shadow: 0 0 10px rgba(229, 193, 88, 0.3); }
+
+        .ai-action-btns { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .ai-panel-btn { padding: 12px 25px; border-radius: 25px; font-family: 'Lora', serif; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; border: 1px solid transparent; }
+        
+        .btn-confirm { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.3); }
+        .btn-confirm:hover { background: rgba(255,255,255,0.2); }
+        
+        .btn-retry { background: linear-gradient(135deg, #e5c158 0%, #b89224 100%); color: #000; font-weight: bold; }
+        .btn-retry:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(229, 193, 88, 0.5); }
+    </style>
+</head>
+<body>
+
+    <audio id="audio-vn" src="vo_nguyen_giap.mp3" loop></audio>
+    <audio id="audio-en" src="vo_nguyen_giap_en.mp3" loop></audio>
+
+    <div id="tutorial-hand">👆</div>
+
+    <div id="top-controls">
+        <button id="mute-btn" class="top-btn">🔊 Âm thanh</button>
+        <button id="lang-toggle-btn" class="top-btn">English</button>
+        <button id="restart-btn" class="top-btn">Bắt đầu lại</button>
+    </div>
+
+    <model-viewer 
+        id="myModel" src="vo_nguyen_giap.glb" auto-rotate rotation-per-second="-12deg" 
+        camera-orbit="0deg 75deg 140%" camera-target="0m 0m 0m" shadow-intensity="1.5" bounds="tight"
+        min-field-of-view="10deg" max-field-of-view="45deg" min-camera-orbit="auto auto 5%" max-camera-orbit="auto auto 200%">
+    </model-viewer>
+
+    <div id="intro-screen">
+        <h1 class="intro-title" id="main-title">VÕ NGUYÊN GIÁP</h1>
+        <div class="lang-container">
+            <button class="lang-btn active" data-lang="vi">VIETNAM</button>
+            <button class="lang-btn" data-lang="en">ENGLISH</button>
+        </div>
+        <button id="start-btn">Bắt Đầu Trải Nghiệm</button>
+    </div>
+
+    <div id="main-ui">
+        <button id="detailBtn" class="ui-btn">Đại Tướng</button>
+        <button id="guideBtn" class="ui-btn">Hướng Dẫn</button>
+        <button id="aiBtn" class="ui-btn ai-btn">AI Hỏi Đáp</button>
+    </div>
+
+    <div id="ai-panel">
+        <button class="ai-close-icon" id="aiCloseBtn">&times;</button>
+        <div class="ai-status" id="aiStatus">Hệ thống AI đang sẵn sàng</div>
+        <div class="ai-result-box" id="aiResultText">Nhấn nút Mic để nói hoặc gõ câu hỏi vào ô bên dưới.</div>
+        
+        <div class="prompt-suggestions" id="promptContainer">
+            <button class="prompt-chip" data-query="Chiến thắng Điện Biên Phủ diễn ra năm nào?">Chiến thắng Điện Biên Phủ?</button>
+            <button class="prompt-chip" data-query="Tư tưởng quân sự của Đại tướng là gì?">Tư tưởng quân sự?</button>
+            <button class="prompt-chip" data-query="Đóng góp ngoài quân sự của ông là gì?">Đóng góp ngoài quân sự?</button>
+        </div>
+
+        <div class="ai-input-group">
+            <input type="text" id="aiTextInput" class="ai-text-input" placeholder="Nhập câu hỏi của bạn tại đây...">
+            <button class="ai-panel-btn btn-confirm" id="aiSendTextBtn">Gửi</button>
+        </div>
+
+        <div class="ai-action-btns">
+            <button class="ai-panel-btn btn-confirm" id="aiConfirmBtn" style="display:none;">Xác nhận gửi Voice</button>
+            <button class="ai-panel-btn btn-retry" id="aiRetryBtn">🎙️ Bật Mic Nói</button>
+        </div>
+    </div>
+
+    <div id="overlayDetail" class="overlay-layer">
+        <div class="lang-vi">
+            <h2 class="overlay-title">Võ Nguyên Giáp</h2>
+            <div class="overlay-content">
+                <p><strong>Võ Nguyên Giáp:</strong> Võ Nguyên Giáp (1911–2013) là Đại tướng đầu tiên, Tổng Tư lệnh Quân đội Nhân dân Việt Nam và Bộ trưởng Quốc phòng trong nhiều thập niên. Ông được xem là một trong những nhà chiến lược quân sự kiệt xuất của thế kỷ 20, góp phần quan trọng vào hai cuộc kháng chiến chống Pháp và chống Mỹ, đưa Việt Nam đến độc lập và thống nhất.</p>
+                <p><strong>Sự nghiệp và vai trò lịch sử:</strong> Sinh tại Quảng Bình trong một gia đình nhà nho yêu nước, Võ Nguyên Giáp sớm tham gia phong trào cách mạng và gia nhập Đảng Cộng sản Đông Dương năm 1931. Trong Cách mạng Tháng Tám năm 1945, ông giữ vai trò chỉ huy lực lượng vũ trang giành chính quyền, sau đó là Tổng Tư lệnh Quân đội Nhân dân Việt Nam từ năm 1946 đến 1975. Trong Chiến dịch Điện Biên Phủ (1954), ông lãnh đạo quân đội đánh bại quân viễn chinh Pháp, kết thúc Chiến tranh Đông Dương lần thứ nhất và chấm dứt ách đô hộ của thực dân Pháp.</p>
+                <p><strong>Tài năng quân sự và tư tưởng chiến tranh nhân dân:</strong> Tư duy quân sự của Võ Nguyên Giáp dựa trên chiến tranh nhân dân – huy động toàn dân, toàn diện và trường kỳ để chống kẻ thù mạnh hơn. Ông nổi tiếng với khả năng kết hợp linh hoạt giữa đấu tranh quân sự, chính trị và ngoại giao, cùng nghệ thuật “lấy ít địch nhiều”. Trong Chiến tranh Việt Nam, ông giữ vai trò cố vấn chiến lược, chỉ đạo nhiều chiến dịch lớn như Tổng tiến công Tết Mậu Thân 1968 và Chiến dịch Hồ Chí Minh 1975.</p>
+                <p><strong>Đóng góp ngoài quân sự:</strong> Sau chiến tranh, ông đảm nhiệm Phó Thủ tướng, tiếp tục tham gia lãnh đạo quốc phòng và phát triển khoa học – giáo dục. Võ Nguyên Giáp luôn nhấn mạnh đạo đức cách mạng, coi trọng trí thức và lớp trẻ, là tấm gương mẫu mực về “trí – dũng – liêm – trung”. Các công trình tưởng niệm, quảng trường, trường học và sách về ông được xây dựng, xuất bản ở trong và ngoài nước.</p>
+                <p><strong>Di sản và tôn vinh:</strong> Đại tướng Võ Nguyên Giáp được nhân dân gọi là “Anh Cả của Quân đội Nhân dân Việt Nam”, “Vị tướng của nhân dân”. Ông được trao nhiều huân chương cao quý như Huân chương Sao Vàng và Huân chương Hồ Chí Minh, đồng thời được quốc tế ghi nhận như “một trong những danh tướng vĩ đại của thời đại”.</p>
+            </div>
+        </div>
+        <div class="lang-en" style="display: none;">
+            <h2 class="overlay-title">Vo Nguyen Giap</h2>
+            <div class="overlay-content">
+                <p><strong>Vo Nguyen Giap:</strong> Vo Nguyen Giap (1911–2013) was the first General, Commander-in-Chief of the People's Army of Vietnam, and Minister of Defense for many decades. He is widely regarded as one of the most prominent military strategists of the 20th century, making vital contributions to the two resistance wars against France and the United States, ultimately leading Vietnam to independence and unification.</p>
+                <p><strong>Career and Historical Role:</strong> Born in Quang Binh into a patriotic Confucian family, Vo Nguyen Giap joined the revolutionary movement early on and became a member of the Indochinese Communist Party in 1931. During the August Revolution of 1945, he took charge of commanding the armed forces to seize power, and subsequently served as the Commander-in-Chief of the People's Army of Vietnam from 1946 to 1975. In the Dien Bien Phu Campaign (1954), he led the military to defeat the French expeditionary forces, effectively concluding the First Indochina War and ending French colonial rule.</p>
+                <p><strong>Military Genius and the Philosophy of People's War:</strong> Vo Nguyen Giap's military thinking was deeply rooted in the concept of "people's war"—mobilizing the entire population across all fronts in a protracted struggle against a militarily superior enemy. He was renowned for his ability to flexibly combine military, political, and diplomatic struggles, alongside the art of "using a smaller force to defeat a larger enemy." During the Vietnam War, he served as a strategic advisor, overseeing major campaigns such as the Tet Offensive in 1968 and the Ho Chi Minh Campaign in 1975.</p>
+                <p><strong>Contributions Beyond the Military:</strong> After the war, he assumed the position of Deputy Prime Minister, continuing to contribute to national defense leadership and the development of science and education. Vo Nguyen Giap always emphasized revolutionary ethics, deeply valued intellectuals as well as the younger generation, and stood as an exemplary model of "wisdom, courage, integrity, and loyalty." Numerous memorial sites, squares, schools, and books dedicated to him have been built and published both within Vietnam and internationally.</p>
+                <p><strong>Legacy and Honors:</strong> General Vo Nguyen Giap is affectionately called by the people as the "Eldest Brother of the People's Army of Vietnam" and "The General of the People." He was awarded prestigious honors, including the Gold Star Order and the Ho Chi Minh Order, and is internationally recognized as "one of the greatest military commanders of the era."</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="overlayGuide" class="overlay-layer">
+        <div class="lang-vi">
+            <h2 class="overlay-title">Hướng Dẫn Tương Tác</h2>
+            <div class="overlay-content">
+                <p>Quý vị vui lòng thao tác theo chỉ dẫn dưới đây để quan sát mô hình:</p>
+                <ul>
+                    <li><strong>Xoay mô hình:</strong> Nhấn giữ chuột trái (hoặc vuốt 1 ngón tay) và kéo sang các hướng.</li>
+                    <li><strong>Phóng to / Thu nhỏ:</strong> Cuộn nút cuộn chuột (hoặc dùng 2 ngón tay thu phóng).</li>
+                    <li><strong>Di chuyển:</strong> Nhấn giữ chuột phải và kéo để dịch chuyển vị trí trung tâm.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="lang-en" style="display: none;">
+            <h2 class="overlay-title">Interaction Guide</h2>
+            <div class="overlay-content">
+                <p>Please follow the instructions below to interact with the 3D model:</p>
+                <ul>
+                    <li><strong>Rotate Model:</strong> Left-click and drag (or swipe with one finger).</li>
+                    <li><strong>Zoom In / Out:</strong> Use the scroll wheel (or pinch with two fingers).</li>
+                    <li><strong>Pan View:</strong> Right-click and drag to move the center position.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const body = document.body;
+        const model = document.querySelector('#myModel');
+        const introScreen = document.querySelector('#intro-screen');
+        const startBtn = document.querySelector('#start-btn');
+        const topControls = document.querySelector('#top-controls');
+        const muteBtn = document.querySelector('#mute-btn');
+        const langToggleBtn = document.querySelector('#lang-toggle-btn');
+        const restartBtn = document.querySelector('#restart-btn');
+        const mainUi = document.querySelector('#main-ui');
+        const tutorialHand = document.querySelector('#tutorial-hand');
+        
+        const detailBtn = document.querySelector('#detailBtn');
+        const guideBtn = document.querySelector('#guideBtn');
+        const aiBtn = document.querySelector('#aiBtn');
+        
+        const overlayDetail = document.querySelector('#overlayDetail');
+        const overlayGuide = document.querySelector('#overlayGuide');
+
+        const langBtns = document.querySelectorAll('.lang-btn');
+        const audioVn = document.querySelector('#audio-vn');
+        const audioEn = document.querySelector('#audio-en');
+
+        const aiPanel = document.querySelector('#ai-panel');
+        const aiStatus = document.querySelector('#aiStatus');
+        const aiResultText = document.querySelector('#aiResultText');
+        const aiConfirmBtn = document.querySelector('#aiConfirmBtn');
+        const aiRetryBtn = document.querySelector('#aiRetryBtn');
+        const aiCloseBtn = document.querySelector('#aiCloseBtn');
+        const aiTextInput = document.querySelector('#aiTextInput');
+        const aiSendTextBtn = document.querySelector('#aiSendTextBtn');
+        
+        const promptContainer = document.querySelector('#promptContainer');
+        const promptChips = document.querySelectorAll('.prompt-chip');
+
+        let selectedLang = 'vi'; 
+        let isMuted = false;
+        let recognition = null;   
+        let finalTranscript = ''; 
+        
+        let currentTTSAudio = new Audio();
+        currentTTSAudio.volume = 1.0; 
+        let typingInterval = null; 
+        let currentAbortController = null; 
+
+        const dict = {
+            vi: {
+                title: "MÔ HÌNH VÕ NGUYÊN GIÁP", startBtn: "Bắt Đầu Trải Nghiệm", restartBtn: "Bắt đầu lại",
+                muteOn: "🔊 Âm thanh", muteOff: "🔇 Tắt âm",
+                detailBtn: "Đại Tướng", guideBtn: "Hướng Dẫn", aiBtn: "AI Hỏi Đáp", closeBtn: "Đóng Lại",
+                aiListening: "Đang lắng nghe... Hãy nói câu hỏi của bạn.",
+                aiConfirm: "Kiểm tra văn bản thu âm bên dưới, bạn có muốn gửi đi?",
+                aiProcessing: "Hệ thống đang suy nghĩ câu trả lời...", aiSpeaking: "Hệ thống đang trả lời...",
+                aiError: "Không nghe rõ hoặc có lỗi xảy ra. Vui lòng thử lại.",
+                aiNoSupport: "Trình duyệt không hỗ trợ nhận diện giọng nói.",
+                placeholder: "Nhập câu hỏi của bạn tại đây...", btnMicText: "🎙️ Bật Mic Nói",
+                prompts: ["Chiến thắng Điện Biên Phủ?", "Tư tưởng quân sự?", "Đóng góp ngoài quân sự?"]
+            },
+            en: {
+                title: "GENERAL VO NGUYEN GIAP", startBtn: "Start Experience", restartBtn: "Restart",
+                muteOn: "🔊 Sound On", muteOff: "🔇 Muted",
+                detailBtn: "The General", guideBtn: "Guide", aiBtn: "AI Q&A", closeBtn: "Close",
+                aiListening: "Listening... Please ask your question.",
+                aiConfirm: "Check the recognized text below, confirm to send?",
+                aiProcessing: "The system is thinking...", aiSpeaking: "The system is replying...",
+                aiError: "Could not hear or an error occurred. Please try again.",
+                aiNoSupport: "Your browser does not support Speech Recognition.",
+                placeholder: "Type your question here...", btnMicText: "🎙️ Start Mic",
+                prompts: ["Dien Bien Phu victory?", "Military philosophy?", "Contributions beyond military?"]
+            }
+        };
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true; 
+        }
+
+        langBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                langBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedLang = btn.getAttribute('data-lang');
+                document.getElementById('main-title').textContent = dict[selectedLang].title;
+                startBtn.textContent = dict[selectedLang].startBtn;
+                restartBtn.textContent = dict[selectedLang].restartBtn;
+                muteBtn.textContent = isMuted ? dict[selectedLang].muteOff : dict[selectedLang].muteOn;
+                
+                // Cập nhật text ngôn ngữ trong màn hình
+                document.querySelectorAll('.lang-vi').forEach(el => el.style.display = (selectedLang === 'vi') ? 'block' : 'none');
+                document.querySelectorAll('.lang-en').forEach(el => el.style.display = (selectedLang === 'en') ? 'block' : 'none');
+                
+                // Cập nhật câu hỏi gợi ý
+                promptChips.forEach((chip, index) => {
+                    chip.textContent = dict[selectedLang].prompts[index];
+                    chip.setAttribute('data-query', dict[selectedLang].prompts[index]);
+                });
+                resetButtons();
+            });
+        });
+
+        startBtn.addEventListener('click', () => {
+            introScreen.style.opacity = '0'; introScreen.style.visibility = 'hidden';
+            mainUi.classList.add('show-ui'); topControls.classList.add('show'); 
+            langToggleBtn.textContent = selectedLang === 'vi' ? 'English' : 'Tiếng Việt';
+            model.setAttribute('camera-controls', ''); model.cameraOrbit = "0deg 75deg 100%";
+            tutorialHand.classList.add('show'); // Hiện hướng dẫn vuốt
+            playBackgroundAudio();
+        });
+
+        // Tắt bàn tay hướng dẫn khi người dùng bắt đầu tương tác với mô hình
+        model.addEventListener('mousedown', () => tutorialHand.classList.remove('show'));
+        model.addEventListener('touchstart', () => tutorialHand.classList.remove('show'));
+
+        function playBackgroundAudio() {
+            if (isMuted) return;
+            if (selectedLang === 'vi') { audioVn.play().catch(e => console.log(e)); audioEn.pause(); audioEn.currentTime = 0; } 
+            else { audioEn.play().catch(e => console.log(e)); audioVn.pause(); audioVn.currentTime = 0; }
+        }
+
+        // Logic Bật/Tắt âm nhạc nền
+        muteBtn.addEventListener('click', () => {
+            isMuted = !isMuted;
+            if (isMuted) {
+                audioVn.pause(); audioEn.pause();
+                muteBtn.textContent = dict[selectedLang].muteOff;
+            } else {
+                playBackgroundAudio();
+                muteBtn.textContent = dict[selectedLang].muteOn;
+            }
+        });
+
+        function stopAllAITasks() {
+            if (currentTTSAudio) { 
+                currentTTSAudio.pause(); 
+                currentTTSAudio.src = ""; 
+            }
+            if (typingInterval) { 
+                clearInterval(typingInterval); 
+                typingInterval = null; 
+            }
+            if (currentAbortController) {
+                currentAbortController.abort(); 
+            }
+        }
+
+        function stopAllAudio() {
+            audioVn.pause(); audioEn.pause();
+            stopAllAITasks();
+        }
+
+        langToggleBtn.addEventListener('click', () => {
+            stopAllAudio();
+            selectedLang = selectedLang === 'vi' ? 'en' : 'vi';
+            langToggleBtn.textContent = selectedLang === 'vi' ? 'English' : 'Tiếng Việt';
+            restartBtn.textContent = dict[selectedLang].restartBtn;
+            muteBtn.textContent = isMuted ? dict[selectedLang].muteOff : dict[selectedLang].muteOn;
+            resetButtons();
+            document.querySelectorAll('.lang-vi').forEach(el => el.style.display = (selectedLang === 'vi') ? 'block' : 'none');
+            document.querySelectorAll('.lang-en').forEach(el => el.style.display = (selectedLang === 'en') ? 'block' : 'none');
+            
+            promptChips.forEach((chip, index) => {
+                chip.textContent = dict[selectedLang].prompts[index];
+                chip.setAttribute('data-query', dict[selectedLang].prompts[index]);
+            });
+
+            if(!isMuted) playBackgroundAudio();
+        });
+
+        restartBtn.addEventListener('click', () => {
+            introScreen.style.opacity = '1'; introScreen.style.visibility = 'visible';
+            mainUi.classList.remove('show-ui'); topControls.classList.remove('show'); 
+            tutorialHand.classList.remove('show');
+            model.removeAttribute('camera-controls'); model.cameraOrbit = "0deg 75deg 140%";
+            stopAllAudio(); audioVn.currentTime = 0; audioEn.currentTime = 0;
+            overlayDetail.classList.remove('active'); overlayGuide.classList.remove('active');
+            aiPanel.classList.remove('active'); body.classList.remove('info-active');
+            resetButtons();
+        });
+
+        function resetButtons() {
+            detailBtn.textContent = dict[selectedLang].detailBtn; detailBtn.classList.remove('active-state');
+            guideBtn.textContent = dict[selectedLang].guideBtn; guideBtn.classList.remove('active-state');
+            aiBtn.textContent = dict[selectedLang].aiBtn; aiBtn.classList.remove('active-state');
+            aiTextInput.placeholder = dict[selectedLang].placeholder;
+            aiRetryBtn.textContent = dict[selectedLang].btnMicText;
+        }
+
+        detailBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); overlayGuide.classList.remove('active'); aiPanel.classList.remove('active');
+            if(recognition) recognition.stop(); overlayDetail.classList.toggle('active');
+            if (overlayDetail.classList.contains('active')) { resetButtons(); detailBtn.textContent = dict[selectedLang].closeBtn; detailBtn.classList.add('active-state'); body.classList.add('info-active'); } 
+            else { resetButtons(); body.classList.remove('info-active'); }
+        });
+
+        guideBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); overlayDetail.classList.remove('active'); aiPanel.classList.remove('active');
+            if(recognition) recognition.stop(); overlayGuide.classList.toggle('active');
+            if (overlayGuide.classList.contains('active')) { resetButtons(); guideBtn.textContent = dict[selectedLang].closeBtn; guideBtn.classList.add('active-state'); body.classList.add('info-active'); } 
+            else { resetButtons(); body.classList.remove('info-active'); }
+        });
+
+        // ================= LOGIC AI HỎI ĐÁP Q&A =================
+
+        aiBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); overlayDetail.classList.remove('active'); overlayGuide.classList.remove('active');
+            stopAllAITasks(); // Chỉ dừng AI, giữ nguyên nhạc nền
+            aiPanel.classList.add('active'); body.classList.remove('info-active'); aiBtn.classList.add('active-state');
+            
+            aiStatus.textContent = selectedLang === 'vi' ? "Hệ thống AI đang sẵn sàng" : "AI System Ready";
+            aiResultText.textContent = selectedLang === 'vi' ? "Nhấn nút Mic để nói hoặc gõ câu hỏi vào ô dưới." : "Click Mic to speak or type below.";
+            aiTextInput.value = "";
+            aiConfirmBtn.style.display = 'none';
+        });
+
+        function startListeningText() {
+            if (!recognition) { aiStatus.textContent = dict[selectedLang].aiNoSupport; return; }
+            stopAllAITasks(); 
+
+            finalTranscript = '';
+            aiResultText.textContent = "...";
+            aiStatus.textContent = dict[selectedLang].aiListening;
+            aiConfirmBtn.style.display = 'none';
+
+            recognition.lang = selectedLang === 'vi' ? 'vi-VN' : 'en-US';
+            try { recognition.start(); } catch(err) { console.log(err); }
+        }
+
+        if (recognition) {
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                let isFinal = false;
+                
+                finalTranscript = ''; 
+
+                for (let i = 0; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                        isFinal = true;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                
+                aiResultText.textContent = `"${finalTranscript + interimTranscript}"`;
+
+                if (isFinal) {
+                    aiStatus.textContent = dict[selectedLang].aiConfirm;
+                    aiConfirmBtn.style.display = 'inline-block';
+                }
+            };
+            recognition.onerror = (event) => {
+                if (event.error !== 'no-speech') { aiStatus.textContent = dict[selectedLang].aiError; }
+            };
+        }
+
+        aiRetryBtn.addEventListener('click', (e) => { e.stopPropagation(); startListeningText(); });
+
+        aiConfirmBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if(!finalTranscript) return;
+            currentTTSAudio.play().catch(()=>{}); 
+            sendQuestionToChatGPT(finalTranscript);
+        });
+
+        aiSendTextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const textQuestion = aiTextInput.value.trim();
+            if(!textQuestion) {
+                aiStatus.textContent = dict[selectedLang].aiError;
+                return;
+            }
+            aiConfirmBtn.style.display = 'none';
+            currentTTSAudio.play().catch(()=>{}); 
+            sendQuestionToChatGPT(textQuestion);
+        });
+
+        aiTextInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                currentTTSAudio.play().catch(()=>{}); 
+                aiSendTextBtn.click();
+            }
+        });
+
+        // Logic khi bấm vào câu hỏi gợi ý
+        promptChips.forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const query = chip.getAttribute('data-query');
+                aiTextInput.value = query;
+                currentTTSAudio.play().catch(()=>{}); 
+                sendQuestionToChatGPT(query);
+            });
+        });
+
+        async function sendQuestionToChatGPT(question) {
+            aiStatus.textContent = dict[selectedLang].aiProcessing;
+            aiResultText.textContent = selectedLang === 'vi' ? "Đang kết nối đến máy chủ AI..." : "Connecting to AI server...";
+            
+            stopAllAITasks(); 
+            currentAbortController = new AbortController();
+
+            try {
+                const response = await fetch('http://localhost:3000/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: question, lang: selectedLang }),
+                    signal: currentAbortController.signal 
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    aiResultText.textContent = "⚠️ Lỗi từ AI: " + (data.reply || "Không xác định");
+                    aiStatus.textContent = "Error";
+                    return;
+                }
+                
+                aiResultText.textContent = selectedLang === 'vi' ? "Đang nạp giọng nói..." : "Loading voice...";
+                await aiSpeakResponse(data.reply); 
+
+            } catch (error) {
+                if (error.name === 'AbortError') return; 
+                console.error("Lỗi kết nối:", error);
+                aiResultText.textContent = selectedLang === 'vi' ? "Mất kết nối hoàn toàn. Hãy kiểm tra lại kết nối mạng!" : "Error connecting to backend server.";
+                aiStatus.textContent = "Error";
+            }
+        }
+
+        async function aiSpeakResponse(textToSpeak) {
+            const cleanText = textToSpeak.replace(/[*#_]/g, ''); 
+
+            try {
+                const response = await fetch('http://localhost:3000/speak', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: cleanText }),
+                    signal: currentAbortController.signal 
+                });
+
+                if (!response.ok) throw new Error("Lỗi tải âm thanh");
+
+                const audioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                
+                stopAllAITasks(); 
+                
+                currentTTSAudio.src = audioUrl;
+                currentTTSAudio.volume = 1.0; 
+                currentTTSAudio.onended = () => {
+                    aiStatus.textContent = selectedLang === 'vi' ? "Bạn muốn hỏi thêm điều gì không?" : "Anything else you want to ask?";
+                };
+                
+                aiStatus.textContent = dict[selectedLang].aiSpeaking;
+                aiResultText.textContent = ""; 
+                
+                currentTTSAudio.play().catch(e => console.log("Lỗi phát audio:", e));
+                
+                let i = 0;
+                typingInterval = setInterval(() => {
+                    if (i < textToSpeak.length) {
+                        aiResultText.textContent += textToSpeak.charAt(i);
+                        i++;
+                        aiResultText.scrollTop = aiResultText.scrollHeight; 
+                    } else {
+                        clearInterval(typingInterval); 
+                        typingInterval = null;
+                    }
+                }, 35); 
+                
+            } catch (err) {
+                if (err.name === 'AbortError') return; 
+                console.error("Lỗi phát giọng nói OpenAI:", err);
+                aiStatus.textContent = dict[selectedLang].aiError;
+            }
+        }
+
+        aiCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); closeAiSession(); });
+
+        function closeAiSession() {
+            if(recognition) recognition.stop();
+            stopAllAITasks(); // Chỉ dừng AI, nhạc nền vẫn giữ nguyên nếu đang bật
+            
+            aiPanel.classList.remove('active');
+            aiBtn.classList.remove('active-state');
+            resetButtons();
+        }
+
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.overlay-layer') && !e.target.closest('#main-ui') && !e.target.closest('#top-controls') && !e.target.closest('#ai-panel')) {
+                overlayDetail.classList.remove('active'); 
+                overlayGuide.classList.remove('active');
+                
+                body.classList.remove('info-active'); 
+                
+                if (aiPanel.classList.contains('active')) { 
+                    closeAiSession(); 
+                } else { 
+                    resetButtons(); 
+                }
+            }
+        });
+    </script>
+</body>
+</html>
