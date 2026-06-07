@@ -572,7 +572,7 @@
             currentAbortController = new AbortController();
 
             try {
-                const response = await fetch('https://backend-api-uvoc.onrender.com/speak', {
+                const response = await fetch('https://backen-api-vo-nguyen-giap.onrender.com', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ question: question, lang: selectedLang }),
@@ -602,7 +602,7 @@
             const cleanText = textToSpeak.replace(/[*#_]/g, ''); 
 
             try {
-                const response = await fetch('https://backend-api-uvoc.onrender.com/speak', {
+                const response = await fetch('https://backen-api-vo-nguyen-giap.onrender.com', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ text: cleanText }),
