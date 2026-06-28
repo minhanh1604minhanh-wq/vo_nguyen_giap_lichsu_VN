@@ -4,675 +4,603 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MÔ HÌNH 3D TƯƠNG TÁC - VÕ NGUYÊN GIÁP</title>
-    
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js"></script>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-
+    
     <style>
-        /* - HIỆU ỨNG TỪ TỪ SÁNG LÊN KHI VÀO TRANG --*/
-        @keyframes pageLoadFade {
-            0% { opacity: 0; filter: brightness(0) blur(5px); }
-            100% { opacity: 1; filter: brightness(1) blur(0); }
-        }
-
-        body {
-            margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden;
-            font-family: 'Lora', serif; 
-            background: radial-gradient(circle at center, #2a2a2a 0%, #0a0a0a 100%);
-            color: #f4f4f4;
-            animation: pageLoadFade 3s ease-out forwards; 
-        }
-
+        @keyframes pageLoadFade { 0% { opacity: 0; filter: brightness(0) blur(5px); } 100% { opacity: 1; filter: brightness(1) blur(0); } }
+        body { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; font-family: 'Lora', serif; background: radial-gradient(circle at center, #2a2a2a 0%, #0a0a0a 100%); color: #f4f4f4; animation: pageLoadFade 3s ease-out forwards; }
         model-viewer { width: 100%; height: 100%; --poster-color: transparent; transition: all 1.5s ease-in-out; }
-
-        /* --- BÀN TAY HƯỚNG DẪN VUỐT CHẠM --- */
-        #tutorial-hand {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 3rem; color: #fff; pointer-events: none; z-index: 80;
-            text-shadow: 0 0 15px rgba(229, 193, 88, 0.8);
-            animation: swipeHand 2s infinite ease-in-out;
-            opacity: 0; visibility: hidden; transition: opacity 0.5s ease;
-        }
-        #tutorial-hand.show { opacity: 1; visibility: visible; }
-        @keyframes swipeHand {
-            0% { transform: translate(-20%, -50%); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translate(-120%, -50%); opacity: 0; }
-        }
-
-        /* --- MÀN HÌNH CHÀO MỪNG --- */
-        #intro-screen {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 999; background: rgba(10, 10, 10, 0.5); transition: opacity 1s ease, visibility 1s ease;
-        }
-
-        .intro-title {
-            font-family: 'Playfair Display', serif; font-size: 3.2rem; color: #e5c158;
-            letter-spacing: 4px; margin-bottom: 30px; text-shadow: 2px 2px 15px rgba(0,0,0,0.9);
-            text-align: center; font-weight: 600; text-transform: uppercase;
-        }
-
-        .lang-container { display: flex; gap: 25px; margin-bottom: 60px; }
-        .lang-btn {
-            background: transparent; border: none; color: #8c8c8c; font-family: 'Lora', serif;
-            font-size: 1.1rem; cursor: pointer; letter-spacing: 2px; transition: all 0.3s ease;
-            padding: 5px 10px; position: relative;
-        }
-        .lang-btn::after {
-            content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 1px;
-            background-color: #e5c158; transition: all 0.3s ease; transform: translateX(-50%);
-        }
-        .lang-btn.active { color: #e5c158; font-weight: 500; }
-        .lang-btn.active::after, .lang-btn:hover::after { width: 80%; }
-        .lang-btn:hover { color: #e5c158; }
-
-        #start-btn {
-            background: transparent; border: 1px solid rgba(255, 255, 255, 0.7); color: #ffffff;
-            padding: 14px 40px; border-radius: 30px; font-family: 'Lora', serif; font-size: 1.1rem;
-            cursor: pointer; letter-spacing: 1px; transition: all 0.4s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
+        
+        #intro-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; background: rgba(10, 10, 10, 0.95); transition: opacity 0.8s ease, visibility 0.8s ease; }
+        .intro-title { font-family: 'Playfair Display', serif; font-size: 3.2rem; color: #e5c158; letter-spacing: 4px; margin-bottom: 20px; text-shadow: 2px 2px 15px rgba(0,0,0,0.9); text-align: center; font-weight: 600; text-transform: uppercase; }
+        
+        #player-name-input { padding: 12px 20px; font-size: 1.1rem; border-radius: 25px; border: 2px solid #e5c158; background: rgba(0,0,0,0.6); color: #fff; text-align: center; margin-bottom: 30px; font-family: 'Lora', serif; width: 250px; outline: none; transition: box-shadow 0.3s;}
+        #player-name-input:focus { box-shadow: 0 0 15px rgba(229, 193, 88, 0.5); }
+        
+        .lang-container { display: flex; gap: 25px; margin-bottom: 30px; }
+        .lang-btn { background: transparent; border: none; color: #8c8c8c; font-family: 'Lora', serif; font-size: 1.1rem; cursor: pointer; letter-spacing: 2px; transition: all 0.3s ease; padding: 5px 10px; position: relative; }
+        .lang-btn.active { color: #e5c158; font-weight: 500; border-bottom: 1px solid #e5c158;} 
+        #start-btn { background: transparent; border: 1px solid rgba(255, 255, 255, 0.7); color: #ffffff; padding: 14px 40px; border-radius: 30px; font-family: 'Lora', serif; font-size: 1.1rem; cursor: pointer; transition: all 0.4s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         #start-btn:hover { background: #ffffff; color: #0a0a0a; border-color: #ffffff; box-shadow: 0 4px 20px rgba(255,255,255,0.4); }
 
-        /* --- CỤM NÚT ĐIỀU KHIỂN (TOP RIGHT) --- */
+        #scroll-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9995; display: none; justify-content: center; align-items: center; background: #0a0a0a; transition: opacity 1.5s ease; opacity: 0; }
+        #parchment { position: relative; width: 85%; max-width: 900px; height: 75%; background: radial-gradient(circle at center, #d4b886 0%, #8b6e45 100%); box-shadow: 0 0 50px rgba(229, 193, 88, 0.2) inset, 0 20px 50px rgba(0,0,0,0.9); border-radius: 10px; overflow: hidden; display: flex; justify-content: center; align-items: center; text-align: center; padding: 40px; }
+        #secret-text { font-family: 'Playfair Display', serif; color: #3d2314; font-size: 1.8rem; line-height: 1.8; opacity: 0; transition: opacity 2s ease; font-weight: 700; max-width: 80%; text-shadow: 1px 1px 2px rgba(255,255,255,0.3); }
+        #dust-canvas, #particle-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; transition: opacity 2s ease;}
+        #particle-canvas { pointer-events: none; z-index: 3; } #dust-canvas { z-index: 2; }
+        .instruction-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; text-align: center; pointer-events: none; z-index: 10; transition: opacity 0.8s ease; }
+        .highlight-text { font-family: 'Playfair Display', serif; font-size: 2rem; color: #ffeb99; text-shadow: 0 0 20px rgba(0,0,0,1), 2px 2px 5px rgba(0,0,0,1); line-height: 1.5; font-weight: bold; margin-bottom: 20px; }
+        .highlight-subtext { font-family: 'Lora', serif; font-size: 1.4rem; color: #ffffff; text-shadow: 0 0 15px rgba(0,0,0,1); line-height: 1.5; }
+        #brush-btn { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(10,10,10,0.85); border: 1px solid #e5c158; color: #e5c158; padding: 12px 30px; border-radius: 30px; cursor: pointer; font-size: 1.1rem; font-family: 'Lora', serif; z-index: 20; transition: all 0.3s; box-shadow: 0 0 15px rgba(229,193,88,0.3); }
+        #brush-btn:hover { background: #e5c158; color: #000; box-shadow: 0 0 25px rgba(229,193,88,0.6); }
+
         #top-controls { position: fixed; top: 30px; right: 30px; display: flex; gap: 15px; z-index: 990; opacity: 0; pointer-events: none; transition: all 0.5s ease; }
         #top-controls.show { opacity: 1; pointer-events: auto; }
-        .top-btn {
-            background: rgba(20, 20, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); color: #e5c158;
-            padding: 10px 22px; border-radius: 20px; font-family: 'Lora', serif; font-size: 0.9rem;
-            letter-spacing: 1px; cursor: pointer; backdrop-filter: blur(5px); white-space: nowrap; 
-            transition: all 0.3s ease;
-        }
-        .top-btn:hover { background: #e5c158; color: #0a0a0a; border-color: #e5c158; box-shadow: 0 0 15px rgba(229, 193, 88, 0.4); }
-
-        /* --- GIAO DIỆN CHÍNH (NÚT BẤM PHÍA DƯỚI) --- */
-        #main-ui { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 90; opacity: 0; pointer-events: none; transition: opacity 1.2s ease 0.5s; }
+        .top-btn { background: rgba(20, 20, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); color: #e5c158; padding: 10px 22px; border-radius: 20px; font-family: 'Lora', serif; font-size: 0.9rem; cursor: pointer; backdrop-filter: blur(5px); white-space: nowrap; transition: all 0.3s ease; }
+        
+        #main-ui { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 90; opacity: 0; pointer-events: none; transition: opacity 1.2s ease 0.5s; width: 90vw; overflow-x: auto; justify-content: flex-start; padding-bottom: 10px; -ms-overflow-style: none; scrollbar-width: none; }
+        #main-ui::-webkit-scrollbar { display: none; }
         #main-ui.show-ui { opacity: 1; pointer-events: auto; }
-        .ui-btn {
-            background: rgba(20, 20, 20, 0.75); border: 1px solid rgba(255, 255, 255, 0.2); color: #f4f4f4;
-            padding: 12px 30px; border-radius: 25px; font-family: 'Lora', serif; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(5px);
-        }
+        .ui-btn { background: rgba(20, 20, 20, 0.75); border: 1px solid rgba(255, 255, 255, 0.2); color: #f4f4f4; padding: 12px 20px; border-radius: 20px; font-family: 'Lora', serif; font-size: 0.95rem; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(5px); white-space: nowrap; flex-shrink: 0; display: flex; justify-content: center; align-items: center; }
         .ui-btn:hover, .ui-btn.active-state { border-color: #e5c158; color: #e5c158; background: rgba(30, 30, 30, 0.9); }
+        .qa-btn { background: linear-gradient(135deg, #e5c158 0%, #b89224 100%) !important; color: #0a0a0a !important; font-weight: bold; border: none !important; }
+        .whatif-btn { background: linear-gradient(135deg, #6c3287 0%, #3f1954 100%) !important; box-shadow: 0 0 15px rgba(108, 50, 135, 0.4); }
+        .roleplay-btn { background: linear-gradient(135deg, #b33939 0%, #7a1f1f 100%) !important; color: white!important;}
+        @media (min-width: 769px) { #main-ui { width: auto; overflow-x: visible; justify-content: center; } .ui-btn { padding: 15px 25px; font-size: 1rem; } }
 
-        .ai-btn { background: linear-gradient(135deg, #e5c158 0%, #b89224 100%) !important; color: #0a0a0a !important; font-weight: bold; border: none !important; box-shadow: 0 0 15px rgba(229, 193, 88, 0.4); }
-        .ai-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(229, 193, 88, 0.7); }
-
-        /* --- LỚP PHỦ THÔNG TIN POPUP (OVERLAYS) --- */
-        .overlay-layer {
-            position: fixed; top: 0; left: -100%; width: 380px; height: 100vh; background: rgba(15, 15, 15, 0.92);
-            box-shadow: 5px 0 25px rgba(0,0,0,0.8); z-index: 100; transition: left 0.5s cubic-bezier(0.77, 0, 0.175, 1);
-            padding: 40px 30px; box-sizing: border-box; backdrop-filter: blur(10px); border-right: 1px solid rgba(229, 193, 88, 0.2); overflow-y: auto;
-        }
-        .overlay-layer.active { left: 0; }
-        .overlay-title { font-family: 'Playfair Display', serif; color: #e5c158; font-size: 1.8rem; margin-bottom: 20px; border-bottom: 1px solid rgba(229, 193, 88, 0.3); padding-bottom: 10px; }
-        .overlay-content { font-size: 0.95rem; line-height: 1.7; color: #cdcdcd; }
-        .overlay-content p { margin-bottom: 15px; text-align: justify; }
-
-        body.info-active model-viewer { opacity: 0.6; transform: scale(0.98); }
-        body.info-active #main-ui button:not(.active-state), body.info-active #top-controls button { pointer-events: none; opacity: 0.3; }
-
-        /* --- KHU VỰC AI DIALOG --- */
-        #ai-panel {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
-            width: 500px; max-width: 90vw; background: rgba(20, 20, 20, 0.98); border: 1px solid #e5c158;
-            border-radius: 15px; padding: 30px 25px 25px; box-sizing: border-box; z-index: 1000; opacity: 0; visibility: hidden;
-            transition: all 0.3s ease; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; backdrop-filter: blur(15px);
-        }
-        #ai-panel.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+        .game-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 500px; max-width: 95vw; background: rgba(20, 20, 20, 0.98); border-radius: 15px; padding: 30px 25px 25px; box-sizing: border-box; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; backdrop-filter: blur(15px); max-height: 90vh; overflow-y: auto; }
+        .game-panel.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+        .panel-close-icon { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #8c8c8c; font-size: 2rem; cursor: pointer; padding: 0; z-index: 10; transition: color 0.3s; }
+        .panel-close-icon:hover { color: #e5c158; }
         
-        .ai-close-icon {
-            position: absolute; top: 15px; right: 20px; background: none; border: none;
-            color: #8c8c8c; font-size: 1.8rem; cursor: pointer; transition: color 0.3s; padding: 0; line-height: 1;
-        }
-        .ai-close-icon:hover { color: #e5c158; }
-
-        .ai-status { font-size: 1.1rem; color: #e5c158; margin-bottom: 15px; font-weight: 500; }
+        .progress-container { width: 100%; background-color: #333; border-radius: 10px; margin-bottom: 15px; display: none; overflow: hidden; height: 16px; position: relative; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
+        .progress-bar { width: 0%; height: 100%; transition: width 0.3s linear; position: absolute; top: 0; left: 0; z-index: 1;}
+        .progress-text { position: absolute; width: 100%; top: 0; left: 0; height: 100%; text-align: center; color: #ffffff; font-size: 11px; font-weight: bold; line-height: 16px; z-index: 2; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); pointer-events: none; font-family: 'Lora', serif; }
         
-        .ai-result-box {
-            background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(229, 193, 88, 0.2); border-radius: 8px;
-            padding: 15px; min-height: 60px; max-height: 180px; overflow-y: auto; margin-bottom: 15px;
-            text-align: left; color: #dddddd; line-height: 1.6; font-size: 0.95rem;
-        }
-
-        /* Gợi ý câu hỏi */
+        .result-box { background: rgba(0, 0, 0, 0.5); border-radius: 8px; padding: 15px; min-height: 60px; margin-bottom: 15px; text-align: justify; color: #dddddd; line-height: 1.6; font-size: 0.95rem; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; } 
+        .text-input { flex: 1; background: rgba(0, 0, 0, 0.6); border-radius: 20px; padding: 10px 15px; color: #fff; font-family: 'Lora', serif; font-size: 0.95rem; outline: none; transition: all 0.3s; }
+        .action-btns { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .panel-btn { padding: 10px 20px; border-radius: 20px; font-family: 'Lora', serif; cursor: pointer; font-size: 0.9rem; border: none; transition: all 0.3s;} 
+        .btn-confirm { background: rgba(255,255,255,0.2); color: #fff; } 
+        .btn-confirm:hover { background: rgba(255,255,255,0.4); }
+        .btn-export { background: #4CAF50; color: white; display: none; width: 100%; margin-top: 10px;}
         .prompt-suggestions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 18px; }
-        .prompt-chip {
-            background: rgba(229, 193, 88, 0.1); border: 1px solid rgba(229, 193, 88, 0.4); color: #e5c158;
-            padding: 6px 14px; border-radius: 15px; font-size: 0.85rem; font-family: 'Lora', serif;
-            cursor: pointer; transition: all 0.3s; white-space: nowrap;
-        }
-        .prompt-chip:hover { background: rgba(229, 193, 88, 0.3); transform: translateY(-2px); }
+        .prompt-chip { padding: 6px 14px; border-radius: 15px; font-size: 0.85rem; font-family: 'Lora', serif; cursor: pointer; transition: all 0.3s; }
 
-        .ai-input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        .ai-text-input {
-            flex: 1; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(229, 193, 88, 0.6);
-            border-radius: 20px; padding: 10px 15px; color: #fff; font-family: 'Lora', serif; font-size: 0.95rem;
-            outline: none; transition: all 0.3s;
-        }
-        .ai-text-input:focus { border-color: #e5c158; box-shadow: 0 0 10px rgba(229, 193, 88, 0.3); }
+        #qa-panel { border: 2px solid #e5c158; }
+        #qa-panel .result-box { border: 1px solid rgba(229, 193, 88, 0.2); }
+        #qa-panel .text-input { border: 1px solid rgba(229, 193, 88, 0.6); }
+        #qa-panel .progress-bar { background-color: #e5c158; box-shadow: 0 0 10px #e5c158;}
+        #qa-panel .btn-retry { background: #b89224; color: #000; font-weight: bold; }
+        #qa-panel .prompt-chip { background: rgba(229, 193, 88, 0.1); border: 1px solid rgba(229, 193, 88, 0.4); color: #e5c158; }
+        .qa-header { font-size: 1.1rem; color: #e5c158; margin-bottom: 10px; font-weight: 500; }
 
-        .ai-action-btns { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-        .ai-panel-btn { padding: 12px 25px; border-radius: 25px; font-family: 'Lora', serif; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; border: 1px solid transparent; }
-        
-        .btn-confirm { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.3); }
-        .btn-confirm:hover { background: rgba(255,255,255,0.2); }
-        
-        .btn-retry { background: linear-gradient(135deg, #e5c158 0%, #b89224 100%); color: #000; font-weight: bold; }
-        .btn-retry:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(229, 193, 88, 0.5); }
+        #mv-panel { border: 2px solid #a252c8; background: rgba(15, 5, 25, 0.95); box-shadow: 0 0 30px rgba(162, 82, 200, 0.4);}
+        #mv-panel .result-box { border: 1px solid rgba(162, 82, 200, 0.3); }
+        #mv-panel .text-input { border: 1px solid rgba(162, 82, 200, 0.6); }
+        #mv-panel .progress-bar { background-color: #a252c8; box-shadow: 0 0 10px #a252c8;}
+        #mv-panel .btn-retry { background: #6c3287; color: #fff; font-weight: bold; }
+        #mv-panel .prompt-chip { background: rgba(162, 82, 200, 0.1); border: 1px solid rgba(162, 82, 200, 0.4); color: #d18ff2; }
+        .mv-header { font-size: 1.1rem; color: #d18ff2; margin-bottom: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;}
+        #mv-stats { display: none; justify-content: space-around; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; border: 1px solid #6c3287; margin-bottom: 15px; }
+        .mv-stat-title { font-size: 0.8rem; color: #a894c2; text-transform: uppercase; margin-bottom: 5px; } 
+        .mv-stat-num { font-family: 'Playfair Display', monospace; font-size: 2rem; font-weight: bold; } 
+        #mv-img-box { margin-bottom: 15px; display: none; width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid #6c3287; } 
+        #mv-img-box img { width: 100%; height: auto; display: block; }
+        .mv-guide { font-size: 0.9rem; color: #a894c2; margin-bottom: 15px; font-style: italic; text-align: left; background: rgba(108, 50, 135, 0.1); padding: 10px; border-radius: 8px; border-left: 3px solid #6c3287;}
+
+        #roleplay-panel { border: 2px solid #b33939; }
+        .rp-header { color: #ff6b6b; font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 10px; border-bottom: 1px solid #b33939; padding-bottom: 10px; }
+        .rp-npc-box { background: rgba(0,0,0,0.6); padding: 20px; border-radius: 10px; border-left: 4px solid #e5c158; margin-bottom: 25px; text-align: justify; color: #fff; line-height: 1.6;}
+        .rp-options { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+        .rp-option-btn { background: rgba(179, 57, 57, 0.1); border: 1px solid rgba(179, 57, 57, 0.5); color: #ffdada; padding: 15px; border-radius: 8px; font-family: 'Lora', serif; font-size: 1rem; cursor: pointer; text-align: left; transition: all 0.3s ease;}
+        .rp-option-btn:hover { border-color: #ff6b6b; transform: translateX(5px); }
+        .rp-option-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        #rp-progress-container .progress-bar { background-color: #b33939; box-shadow: 0 0 10px #b33939;}
+
+        .overlay-layer { position: fixed; top: 0; left: -100%; width: 400px; max-width: 100vw; height: 100vh; background: rgba(15, 15, 15, 0.98); box-shadow: 5px 0 25px rgba(0,0,0,0.9); z-index: 1005; transition: left 0.4s cubic-bezier(0.77, 0, 0.175, 1); padding: 40px 30px; box-sizing: border-box; border-right: 1px solid rgba(229, 193, 88, 0.3); overflow-y: auto; }
+        .overlay-layer.active { left: 0; }
+        .overlay-title { font-family: 'Playfair Display', serif; color: #e5c158; font-size: 1.8rem; margin-bottom: 20px; border-bottom: 1px solid rgba(229, 193, 88, 0.3); padding-bottom: 10px; padding-right: 30px;}
+        .overlay-content { font-size: 0.95rem; line-height: 1.7; color: #cdcdcd; text-align: justify;} 
+        .overlay-content p { margin-bottom: 15px; }
+
+        #pdf-export-container { display: none; }
     </style>
 </head>
 <body>
+    <audio id="audio-vn" src="vo_nguyen_giap.mp3" preload="auto"></audio>
+    <audio id="audio-en" src="vo_nguyen_giap_en.mp3" preload="auto"></audio>
+    <audio id="sweep-audio" src="sweep.mp3" preload="auto"></audio>
+    <audio id="blow-audio" src="blow.mp3" preload="auto"></audio>
 
-    <audio id="audio-vn" src="vo_nguyen_giap.mp3" loop></audio>
-    <audio id="audio-en" src="vo_nguyen_giap_en.mp3" loop></audio>
-
-    <div id="tutorial-hand">👆</div>
-
-    <div id="top-controls">
-        <button id="mute-btn" class="top-btn">🔊 Âm thanh</button>
-        <button id="lang-toggle-btn" class="top-btn">English</button>
-        <button id="restart-btn" class="top-btn">Bắt đầu lại</button>
-    </div>
-
-    <model-viewer 
-        id="myModel" src="vo_nguyen_giap.glb" auto-rotate rotation-per-second="-12deg" 
-        camera-orbit="0deg 75deg 140%" camera-target="0m 0m 0m" shadow-intensity="1.5" bounds="tight"
-        min-field-of-view="10deg" max-field-of-view="45deg" min-camera-orbit="auto auto 5%" max-camera-orbit="auto auto 200%">
-    </model-viewer>
+    <div id="top-controls"><button id="lang-toggle-btn" class="top-btn">English</button><button id="restart-btn" class="top-btn">Bắt đầu lại</button></div>
+    <model-viewer id="myModel" src="vo_nguyen_giap.glb" auto-rotate rotation-per-second="-12deg" camera-orbit="0deg 75deg 140%" camera-target="0m 0m 0m" shadow-intensity="1.5" bounds="tight" min-field-of-view="10deg" max-field-of-view="45deg" min-camera-orbit="auto auto 5%" max-camera-orbit="auto auto 200%"></model-viewer>
 
     <div id="intro-screen">
         <h1 class="intro-title" id="main-title">VÕ NGUYÊN GIÁP</h1>
-        <div class="lang-container">
-            <button class="lang-btn active" data-lang="vi">VIETNAM</button>
-            <button class="lang-btn" data-lang="en">ENGLISH</button>
-        </div>
+        <input type="text" id="player-name-input" placeholder="Nhập tên của bạn...">
+        <div class="lang-container"><button class="lang-btn active" data-lang="vi">VIETNAM</button><button class="lang-btn" data-lang="en">ENGLISH</button></div>
         <button id="start-btn">Bắt Đầu Trải Nghiệm</button>
+    </div>
+
+    <div id="scroll-overlay">
+        <div id="parchment">
+            <div id="secret-text"></div>
+            <canvas id="dust-canvas"></canvas><canvas id="particle-canvas"></canvas>
+            <div class="instruction-box" id="instruction-box"><p class="highlight-text" id="dust-title"></p><p class="highlight-subtext" id="dust-sub"></p></div>
+            <button id="brush-btn"></button>
+        </div>
     </div>
 
     <div id="main-ui">
         <button id="detailBtn" class="ui-btn">Đại Tướng</button>
         <button id="guideBtn" class="ui-btn">Hướng Dẫn</button>
-        <button id="aiBtn" class="ui-btn ai-btn">AI Hỏi Đáp</button>
+        <button id="qaBtn" class="ui-btn qa-btn">AI Hỏi Đáp</button>
+        <button id="mvBtn" class="ui-btn whatif-btn">🌌 Đa Vũ Trụ</button>
+        <button id="roleplayBtn" class="ui-btn roleplay-btn">🎭 Nhập Vai</button>
     </div>
 
-    <div id="ai-panel">
-        <button class="ai-close-icon" id="aiCloseBtn">&times;</button>
-        <div class="ai-status" id="aiStatus">Hệ thống AI đang sẵn sàng</div>
-        <div class="ai-result-box" id="aiResultText">Nhấn nút Mic để nói hoặc gõ câu hỏi vào ô bên dưới.</div>
-        
-        <div class="prompt-suggestions" id="promptContainer">
-            <button class="prompt-chip" data-query="Chiến thắng Điện Biên Phủ diễn ra năm nào?">Chiến thắng Điện Biên Phủ?</button>
-            <button class="prompt-chip" data-query="Tư tưởng quân sự của Đại tướng là gì?">Tư tưởng quân sự?</button>
-            <button class="prompt-chip" data-query="Đóng góp ngoài quân sự của ông là gì?">Đóng góp ngoài quân sự?</button>
+    <div id="qa-panel" class="game-panel">
+        <button class="panel-close-icon" onclick="closeAllPopups()">&times;</button>
+        <div class="qa-header" id="qa-status">Hệ thống AI đang sẵn sàng</div>
+        <div class="progress-container" id="qa-progress"><div class="progress-bar" id="qa-bar"></div><div class="progress-text" id="qa-text">0%</div></div>
+        <div class="result-box" id="qa-result">Nhấn nút Mic hoặc gõ câu hỏi vào ô bên dưới.</div>
+        <div class="prompt-suggestions" id="qa-prompts"></div>
+        <div class="input-group">
+            <input type="text" id="qa-input" class="text-input" placeholder="Hỏi về sự thật lịch sử...">
+            <button class="panel-btn btn-confirm" id="qa-send-btn">Gửi</button>
         </div>
+        <div class="action-btns"><button class="panel-btn btn-retry" id="qa-mic-btn">🎙️ Bật Mic</button></div>
+    </div>
 
-        <div class="ai-input-group">
-            <input type="text" id="aiTextInput" class="ai-text-input" placeholder="Nhập câu hỏi của bạn tại đây...">
-            <button class="ai-panel-btn btn-confirm" id="aiSendTextBtn">Gửi</button>
+    <div id="mv-panel" class="game-panel">
+        <button class="panel-close-icon" onclick="closeAllPopups()">&times;</button>
+        <div class="mv-header" id="mv-status">🌌 CỖ MÁY ĐA VŨ TRỤ LƯỢNG TỬ</div>
+        <div class="mv-guide">Nhập giả thuyết đi ngược lịch sử (Ví dụ: Nếu không kéo pháo ra ở Điện Biên Phủ?)</div>
+        <div class="progress-container" id="mv-progress"><div class="progress-bar" id="mv-bar"></div><div class="progress-text" id="mv-text">0%</div></div>
+        <div id="mv-stats">
+            <div class="stat-box"><div class="mv-stat-title">Thành công</div><div class="mv-stat-num stat-success" id="mv-stat-success">0%</div></div>
+            <div class="stat-box"><div class="mv-stat-title">Thương vong</div><div class="mv-stat-num stat-casualty" id="mv-stat-casualty">0%</div></div>
         </div>
+        <div id="mv-img-box"><img id="mv-image" src="" alt="Viễn cảnh"></div>
+        <div class="result-box" id="mv-result">Sẵn sàng mô phỏng dòng thời gian mới...</div>
+        <div class="prompt-suggestions" id="mv-prompts"></div>
+        <div class="input-group">
+            <input type="text" id="mv-input" class="text-input" placeholder="Nếu như...">
+            <button class="panel-btn btn-confirm" id="mv-send-btn">Mô phỏng</button>
+        </div>
+        <div class="action-btns"><button class="panel-btn btn-retry" id="mv-mic-btn">🎙️ Bật Mic</button></div>
+        <button class="panel-btn btn-export" id="btnExportWhatIf">📥 Tải Báo Cáo Đa Vũ Trụ</button>
+    </div>
 
-        <div class="ai-action-btns">
-            <button class="ai-panel-btn btn-confirm" id="aiConfirmBtn" style="display:none;">Xác nhận gửi Voice</button>
-            <button class="ai-panel-btn btn-retry" id="aiRetryBtn">🎙️ Bật Mic Nói</button>
-        </div>
+    <div id="roleplay-panel" class="game-panel">
+        <button class="panel-close-icon" onclick="closeAllPopups()">&times;</button>
+        <div class="rp-header">ĐẠI TƯỚNG VÕ NGUYÊN GIÁP</div>
+        <div class="rp-turn" id="rp-turn-text">Lượt: 1 / 10</div>
+        <div class="progress-container" id="rp-progress"><div class="progress-bar" id="rp-bar"></div><div class="progress-text" id="rp-text">0%</div></div>
+        <div class="rp-npc-box" id="rp-npc-text">Đang kết nối đến Sở chỉ huy tiền phương...</div>
+        <div class="rp-options" id="rp-options-container"></div>
+        <button class="panel-btn btn-export" id="btnExportRoleplay">📥 Xuất Học bạ Điện tử</button>
     </div>
 
     <div id="overlayDetail" class="overlay-layer">
+        <button class="panel-close-icon" onclick="closeAllPopups()">&times;</button>
         <div class="lang-vi">
             <h2 class="overlay-title">Võ Nguyên Giáp</h2>
             <div class="overlay-content">
                 <p><strong>Võ Nguyên Giáp:</strong> Võ Nguyên Giáp (1911–2013) là Đại tướng đầu tiên, Tổng Tư lệnh Quân đội Nhân dân Việt Nam và Bộ trưởng Quốc phòng trong nhiều thập niên. Ông được xem là một trong những nhà chiến lược quân sự kiệt xuất của thế kỷ 20, góp phần quan trọng vào hai cuộc kháng chiến chống Pháp và chống Mỹ, đưa Việt Nam đến độc lập và thống nhất.</p>
-                <p><strong>Sự nghiệp và vai trò lịch sử:</strong> Sinh tại Quảng Bình trong một gia đình nhà nho yêu nước, Võ Nguyên Giáp sớm tham gia phong trào cách mạng và gia nhập Đảng Cộng sản Đông Dương năm 1931. Trong Cách mạng Tháng Tám năm 1945, ông giữ vai trò chỉ huy lực lượng vũ trang giành chính quyền, sau đó là Tổng Tư lệnh Quân đội Nhân dân Việt Nam từ năm 1946 đến 1975. Trong Chiến dịch Điện Biên Phủ (1954), ông lãnh đạo quân đội đánh bại quân viễn chinh Pháp, kết thúc Chiến tranh Đông Dương lần thứ nhất và chấm dứt ách đô hộ của thực dân Pháp.</p>
-                <p><strong>Tài năng quân sự và tư tưởng chiến tranh nhân dân:</strong> Tư duy quân sự của Võ Nguyên Giáp dựa trên chiến tranh nhân dân – huy động toàn dân, toàn diện và trường kỳ để chống kẻ thù mạnh hơn. Ông nổi tiếng với khả năng kết hợp linh hoạt giữa đấu tranh quân sự, chính trị và ngoại giao, cùng nghệ thuật “lấy ít địch nhiều”. Trong Chiến tranh Việt Nam, ông giữ vai trò cố vấn chiến lược, chỉ đạo nhiều chiến dịch lớn như Tổng tiến công Tết Mậu Thân 1968 và Chiến dịch Hồ Chí Minh 1975.</p>
-                <p><strong>Đóng góp ngoài quân sự:</strong> Sau chiến tranh, ông đảm nhiệm Phó Thủ tướng, tiếp tục tham gia lãnh đạo quốc phòng và phát triển khoa học – giáo dục. Võ Nguyên Giáp luôn nhấn mạnh đạo đức cách mạng, coi trọng trí thức và lớp trẻ, là tấm gương mẫu mực về “trí – dũng – liêm – trung”. Các công trình tưởng niệm, quảng trường, trường học và sách về ông được xây dựng, xuất bản ở trong và ngoài nước.</p>
-                <p><strong>Di sản và tôn vinh:</strong> Đại tướng Võ Nguyên Giáp được nhân dân gọi là “Anh Cả của Quân đội Nhân dân Việt Nam”, “Vị tướng của nhân dân”. Ông được trao nhiều huân chương cao quý như Huân chương Sao Vàng và Huân chương Hồ Chí Minh, đồng thời được quốc tế ghi nhận như “một trong những danh tướng vĩ đại của thời đại”.</p>
+                <p><strong>Sự nghiệp và vai trò lịch sử:</strong> Sinh tại Quảng Bình trong một gia đình nhà nho yêu nước, Võ Nguyên Giáp sớm tham gia phong trào cách mạng. Trong Cách mạng Tháng Tám năm 1945, ông chỉ huy lực lượng vũ trang giành chính quyền, sau đó là Tổng Tư lệnh Quân đội Nhân dân Việt Nam từ năm 1946 đến 1975. Trong Chiến dịch Điện Biên Phủ (1954), ông lãnh đạo quân đội đánh bại quân viễn chinh Pháp, kết thúc Chiến tranh Đông Dương lần thứ nhất.</p>
+                <p><strong>Tư tưởng chiến tranh nhân dân:</strong> Tư duy quân sự của Võ Nguyên Giáp dựa trên chiến tranh nhân dân – huy động toàn dân, toàn diện và trường kỳ để chống kẻ thù mạnh hơn. Ông nổi tiếng với nghệ thuật “lấy ít địch nhiều”. Trong Chiến tranh Việt Nam, ông chỉ đạo nhiều chiến dịch lớn như Tổng tiến công Tết Mậu Thân 1968 và Chiến dịch Hồ Chí Minh 1975.</p>
+                <p><strong>Đóng góp ngoài quân sự:</strong> Sau chiến tranh, ông đảm nhiệm Phó Thủ tướng, tiếp tục tham gia lãnh đạo quốc phòng và phát triển khoa học – giáo dục. Ông luôn nhấn mạnh đạo đức cách mạng, coi trọng trí thức và lớp trẻ, là tấm gương mẫu mực về “trí – dũng – liêm – trung”.</p>
+                <p><strong>Di sản và tôn vinh:</strong> Đại tướng Võ Nguyên Giáp được nhân dân gọi là “Anh Cả của Quân đội Nhân dân Việt Nam”, “Vị tướng của nhân dân”. Ông được quốc tế ghi nhận như “một trong những danh tướng vĩ đại của thời đại”.</p>
             </div>
         </div>
         <div class="lang-en" style="display: none;">
             <h2 class="overlay-title">Vo Nguyen Giap</h2>
             <div class="overlay-content">
-                <p><strong>Vo Nguyen Giap:</strong> Vo Nguyen Giap (1911–2013) was the first General, Commander-in-Chief of the People's Army of Vietnam, and Minister of Defense for many decades. He is widely regarded as one of the most prominent military strategists of the 20th century, making vital contributions to the two resistance wars against France and the United States, ultimately leading Vietnam to independence and unification.</p>
-                <p><strong>Career and Historical Role:</strong> Born in Quang Binh into a patriotic Confucian family, Vo Nguyen Giap joined the revolutionary movement early on and became a member of the Indochinese Communist Party in 1931. During the August Revolution of 1945, he took charge of commanding the armed forces to seize power, and subsequently served as the Commander-in-Chief of the People's Army of Vietnam from 1946 to 1975. In the Dien Bien Phu Campaign (1954), he led the military to defeat the French expeditionary forces, effectively concluding the First Indochina War and ending French colonial rule.</p>
-                <p><strong>Military Genius and the Philosophy of People's War:</strong> Vo Nguyen Giap's military thinking was deeply rooted in the concept of "people's war"—mobilizing the entire population across all fronts in a protracted struggle against a militarily superior enemy. He was renowned for his ability to flexibly combine military, political, and diplomatic struggles, alongside the art of "using a smaller force to defeat a larger enemy." During the Vietnam War, he served as a strategic advisor, overseeing major campaigns such as the Tet Offensive in 1968 and the Ho Chi Minh Campaign in 1975.</p>
-                <p><strong>Contributions Beyond the Military:</strong> After the war, he assumed the position of Deputy Prime Minister, continuing to contribute to national defense leadership and the development of science and education. Vo Nguyen Giap always emphasized revolutionary ethics, deeply valued intellectuals as well as the younger generation, and stood as an exemplary model of "wisdom, courage, integrity, and loyalty." Numerous memorial sites, squares, schools, and books dedicated to him have been built and published both within Vietnam and internationally.</p>
-                <p><strong>Legacy and Honors:</strong> General Vo Nguyen Giap is affectionately called by the people as the "Eldest Brother of the People's Army of Vietnam" and "The General of the People." He was awarded prestigious honors, including the Gold Star Order and the Ho Chi Minh Order, and is internationally recognized as "one of the greatest military commanders of the era."</p>
+                <p><strong>Vo Nguyen Giap:</strong> Vo Nguyen Giap (1911–2013) was the first General, Commander-in-Chief of the People's Army of Vietnam, and Minister of Defense for many decades. He is widely regarded as one of the most prominent military strategists of the 20th century, making vital contributions to the two resistance wars against France and the United States.</p>
+                <p><strong>Career and Historical Role:</strong> Born in Quang Binh into a patriotic family, he joined the revolutionary movement early on. During the August Revolution of 1945, he commanded the armed forces to seize power. In the Dien Bien Phu Campaign (1954), he led the military to defeat the French expeditionary forces, effectively concluding the First Indochina War.</p>
+                <p><strong>Philosophy of People's War:</strong> His military thinking was deeply rooted in the concept of "people's war"—mobilizing the entire population across all fronts in a protracted struggle against a militarily superior enemy. He was renowned for the art of "using a smaller force to defeat a larger enemy."</p>
+                <p><strong>Contributions Beyond the Military:</strong> After the war, he assumed the position of Deputy Prime Minister, contributing to national defense and the development of science and education. He always emphasized revolutionary ethics and deeply valued intellectuals and the younger generation.</p>
+                <p><strong>Legacy and Honors:</strong> General Vo Nguyen Giap is affectionately called the "Eldest Brother of the People's Army of Vietnam" and "The General of the People." He is internationally recognized as "one of the greatest military commanders of the era."</p>
             </div>
         </div>
     </div>
 
     <div id="overlayGuide" class="overlay-layer">
+        <button class="panel-close-icon" onclick="closeAllPopups()">&times;</button>
         <div class="lang-vi">
             <h2 class="overlay-title">Hướng Dẫn Tương Tác</h2>
             <div class="overlay-content">
                 <p>Quý vị vui lòng thao tác theo chỉ dẫn dưới đây để quan sát mô hình:</p>
-                <ul>
-                    <li><strong>Xoay mô hình:</strong> Nhấn giữ chuột trái (hoặc vuốt 1 ngón tay) và kéo sang các hướng.</li>
-                    <li><strong>Phóng to / Thu nhỏ:</strong> Cuộn nút cuộn chuột (hoặc dùng 2 ngón tay thu phóng).</li>
-                    <li><strong>Di chuyển:</strong> Nhấn giữ chuột phải và kéo để dịch chuyển vị trí trung tâm.</li>
-                </ul>
+                <ul><li><strong>Xoay mô hình:</strong> Nhấn giữ chuột trái (hoặc vuốt 1 ngón tay) và kéo sang các hướng.</li><li><strong>Phóng to / Thu nhỏ:</strong> Cuộn nút cuộn chuột (hoặc dùng 2 ngón tay thu phóng).</li><li><strong>Di chuyển:</strong> Nhấn giữ chuột phải và kéo để dịch chuyển vị trí trung tâm.</li></ul>
             </div>
         </div>
         <div class="lang-en" style="display: none;">
             <h2 class="overlay-title">Interaction Guide</h2>
             <div class="overlay-content">
                 <p>Please follow the instructions below to interact with the 3D model:</p>
-                <ul>
-                    <li><strong>Rotate Model:</strong> Left-click and drag (or swipe with one finger).</li>
-                    <li><strong>Zoom In / Out:</strong> Use the scroll wheel (or pinch with two fingers).</li>
-                    <li><strong>Pan View:</strong> Right-click and drag to move the center position.</li>
-                </ul>
+                <ul><li><strong>Rotate Model:</strong> Left-click and drag.</li><li><strong>Zoom In / Out:</strong> Use the scroll wheel.</li><li><strong>Pan View:</strong> Right-click and drag.</li></ul>
             </div>
         </div>
     </div>
 
     <script>
-        const body = document.body;
-        const model = document.querySelector('#myModel');
-        const introScreen = document.querySelector('#intro-screen');
-        const startBtn = document.querySelector('#start-btn');
-        const topControls = document.querySelector('#top-controls');
-        const muteBtn = document.querySelector('#mute-btn');
-        const langToggleBtn = document.querySelector('#lang-toggle-btn');
-        const restartBtn = document.querySelector('#restart-btn');
-        const mainUi = document.querySelector('#main-ui');
-        const tutorialHand = document.querySelector('#tutorial-hand');
-        
-        const detailBtn = document.querySelector('#detailBtn');
-        const guideBtn = document.querySelector('#guideBtn');
-        const aiBtn = document.querySelector('#aiBtn');
-        
-        const overlayDetail = document.querySelector('#overlayDetail');
-        const overlayGuide = document.querySelector('#overlayGuide');
-
-        const langBtns = document.querySelectorAll('.lang-btn');
-        const audioVn = document.querySelector('#audio-vn');
-        const audioEn = document.querySelector('#audio-en');
-
-        const aiPanel = document.querySelector('#ai-panel');
-        const aiStatus = document.querySelector('#aiStatus');
-        const aiResultText = document.querySelector('#aiResultText');
-        const aiConfirmBtn = document.querySelector('#aiConfirmBtn');
-        const aiRetryBtn = document.querySelector('#aiRetryBtn');
-        const aiCloseBtn = document.querySelector('#aiCloseBtn');
-        const aiTextInput = document.querySelector('#aiTextInput');
-        const aiSendTextBtn = document.querySelector('#aiSendTextBtn');
-        
-        const promptContainer = document.querySelector('#promptContainer');
-        const promptChips = document.querySelectorAll('.prompt-chip');
-
-        let selectedLang = 'vi'; 
-        let isMuted = false;
-        let recognition = null;   
-        let finalTranscript = ''; 
-        
-        let currentTTSAudio = new Audio();
-        currentTTSAudio.volume = 1.0; 
-        let typingInterval = null; 
-        let currentAbortController = null; 
-
+        // ================= TỪ ĐIỂN VÕ NGUYÊN GIÁP =================
         const dict = {
-            vi: {
-                title: "MÔ HÌNH VÕ NGUYÊN GIÁP", startBtn: "Bắt Đầu Trải Nghiệm", restartBtn: "Bắt đầu lại",
-                muteOn: "🔊 Âm thanh", muteOff: "🔇 Tắt âm",
-                detailBtn: "Đại Tướng", guideBtn: "Hướng Dẫn", aiBtn: "AI Hỏi Đáp", closeBtn: "Đóng Lại",
-                aiListening: "Đang lắng nghe... Hãy nói câu hỏi của bạn.",
-                aiConfirm: "Kiểm tra văn bản thu âm bên dưới, bạn có muốn gửi đi?",
-                aiProcessing: "Hệ thống đang suy nghĩ câu trả lời...", aiSpeaking: "Hệ thống đang trả lời...",
-                aiError: "Không nghe rõ hoặc có lỗi xảy ra. Vui lòng thử lại.",
-                aiNoSupport: "Trình duyệt không hỗ trợ nhận diện giọng nói.",
-                placeholder: "Nhập câu hỏi của bạn tại đây...", btnMicText: "🎙️ Bật Mic Nói",
-                prompts: ["Chiến thắng Điện Biên Phủ?", "Tư tưởng quân sự?", "Đóng góp ngoài quân sự?"]
-            },
-            en: {
-                title: "GENERAL VO NGUYEN GIAP", startBtn: "Start Experience", restartBtn: "Restart",
-                muteOn: "🔊 Sound On", muteOff: "🔇 Muted",
-                detailBtn: "The General", guideBtn: "Guide", aiBtn: "AI Q&A", closeBtn: "Close",
-                aiListening: "Listening... Please ask your question.",
-                aiConfirm: "Check the recognized text below, confirm to send?",
-                aiProcessing: "The system is thinking...", aiSpeaking: "The system is replying...",
-                aiError: "Could not hear or an error occurred. Please try again.",
-                aiNoSupport: "Your browser does not support Speech Recognition.",
-                placeholder: "Type your question here...", btnMicText: "🎙️ Start Mic",
-                prompts: ["Dien Bien Phu victory?", "Military philosophy?", "Contributions beyond military?"]
-            }
+            vi: { title: "MÔ HÌNH VÕ NGUYÊN GIÁP", startBtn: "Bắt Đầu Trải Nghiệm", restartBtn: "Bắt đầu lại", detailBtn: "Đại Tướng", guideBtn: "Hướng Dẫn", qaBtn: "AI Hỏi Đáp", mvBtn: "Đa Vũ Trụ", roleplayBtn: "Nhập Vai", closeBtn: "Đóng Lại", secretText: '"Vị tướng của nhân dân, người anh cả của Quân đội!"', dustTitle: "Bản quân lệnh bị thời gian vùi lấp.", dustSub: "Thổi vào micro hoặc quét đi lớp bụi ấy.", brushBtn: "🧹 Dùng chổi quét", qaPrompts: ["Chiến thắng Điện Biên Phủ?", "Tư tưởng quân sự?", "Đóng góp ngoài quân sự?"], mvPrompts: ["Nếu không kéo pháo ra ở Điện Biên Phủ?", "Nếu Pháp không nhảy dù xuống Điện Biên Phủ?"] },
+            en: { title: "GENERAL VO NGUYEN GIAP", startBtn: "Start", restartBtn: "Restart", detailBtn: "The General", guideBtn: "Guide", qaBtn: "AI Q&A", mvBtn: "Multiverse", roleplayBtn: "Roleplay", closeBtn: "Close", secretText: '"The People\'s General!"', dustTitle: "The military order is covered in dust.", dustSub: "Blow into the mic or sweep it away.", brushBtn: "🧹 Use Brush", qaPrompts: ["Dien Bien Phu victory?", "Military philosophy?", "Contributions beyond military?"], mvPrompts: ["What if artillery wasn't pulled out?", "What if France didn't parachute into Dien Bien Phu?"] }
         };
 
+        const body = document.body; const model = document.querySelector('#myModel'); const introScreen = document.querySelector('#intro-screen'); const startBtn = document.querySelector('#start-btn'); const langToggleBtn = document.querySelector('#lang-toggle-btn'); const restartBtn = document.querySelector('#restart-btn'); const playerNameInput = document.querySelector('#player-name-input');
+        const detailBtn = document.querySelector('#detailBtn'); const guideBtn = document.querySelector('#guideBtn'); const qaBtn = document.querySelector('#qaBtn'); const mvBtn = document.querySelector('#mvBtn'); const roleplayBtn = document.querySelector('#roleplayBtn');
+        const overlayDetail = document.querySelector('#overlayDetail'); const overlayGuide = document.querySelector('#overlayGuide');
+        const audioVn = document.querySelector('#audio-vn'); const audioEn = document.querySelector('#audio-en'); const sweepAudio = document.querySelector('#sweep-audio'); const blowAudio = document.querySelector('#blow-audio'); 
+        
+        audioVn.volume = 0.8; audioEn.volume = 0.8; sweepAudio.volume = 0.6; blowAudio.volume = 0.8; 
+        
+        let selectedLang = 'vi'; let playerName = "Người lạ"; let isMainExperienceStarted = false;
+        
+        let currentAbortController = null; let rpAbortController = null; let typingInterval = null; 
+        let mvAnimInterval = null; let progressHideTimeout = null; let currentTTSAudio = new Audio();
+        
+        let qaHistory = []; let mvHistory = []; let rpHistory = []; let rpTurn = 1; let progressInterval = null;
+
+        window.onload = () => { let savedName = localStorage.getItem('vngiap_player_name'); if(savedName) playerNameInput.value = savedName; };
+
+        // ================= XỬ LÝ CLICK BẮT ĐẦU =================
+        startBtn.addEventListener('click', async () => {
+            if(playerNameInput.value.trim() !== "") { playerName = playerNameInput.value.trim(); localStorage.setItem('vngiap_player_name', playerName); }
+            scrollOverlay.style.display = 'flex'; scrollOverlay.style.opacity = '1';
+            sweepAudio.volume = 0.6; blowAudio.volume = 0.8; audioVn.volume = 0.8; audioEn.volume = 0.8;
+            sweepAudio.load(); blowAudio.load(); audioVn.load(); audioEn.load();
+            introScreen.style.opacity = '0'; setTimeout(() => { introScreen.style.display = 'none'; startParchmentSequence(); }, 800);
+        });
+
+        // ================= HIỆU ỨNG BỤI =================
+        const scrollOverlay = document.getElementById('scroll-overlay'); const dustCanvas = document.getElementById('dust-canvas'); const particleCanvas = document.getElementById('particle-canvas'); const ctx = dustCanvas.getContext('2d', { willReadFrequently: true }); const pCtx = particleCanvas.getContext('2d'); const instructionBox = document.getElementById('instruction-box'); const secretText = document.getElementById('secret-text'); const brushBtn = document.getElementById('brush-btn');
+        let isRevealed = false; let isBrushingMode = false; let blowAnimationFrame; let particles = []; 
+        function renderRealisticDust() { dustCanvas.width = dustCanvas.offsetWidth; dustCanvas.height = dustCanvas.offsetHeight; particleCanvas.width = dustCanvas.width; particleCanvas.height = dustCanvas.height; ctx.fillStyle = '#5c4d3c'; ctx.fillRect(0, 0, dustCanvas.width, dustCanvas.height); const imgData = ctx.getImageData(0, 0, dustCanvas.width, dustCanvas.height); const data = imgData.data; for (let i = 0; i < data.length; i += 4) { const noise = (Math.random() - 0.5) * 60; data[i] = Math.max(0, Math.min(255, 92 + noise)); data[i+1] = Math.max(0, Math.min(255, 77 + noise)); data[i+2] = Math.max(0, Math.min(255, 60 + noise)); } ctx.putImageData(imgData, 0, 0); for (let i = 0; i < 50; i++) { ctx.beginPath(); ctx.arc(Math.random() * dustCanvas.width, Math.random() * dustCanvas.height, Math.random() * 40, 0, Math.PI * 2); ctx.fillStyle = `rgba(50, 40, 30, ${Math.random() * 0.5})`; ctx.fill(); } ctx.lineJoin = ctx.lineCap = 'round'; }
+        function spawnParticles(x, y, count, isBlowing) { for(let i=0; i<count; i++) { particles.push({ x: x + (Math.random() - 0.5) * 40, y: y + (Math.random() - 0.5) * 40, vx: (Math.random() - 0.5) * (isBlowing ? 15 : 6), vy: (Math.random() - 0.5) * (isBlowing ? 15 : 6) - (isBlowing ? 2 : 0), life: 1.0, decay: Math.random() * 0.05 + 0.02, size: Math.random() * 3 + 1.5, color: `rgba(180, 150, 110, ` }); } }
+        function updateParticles() { pCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height); for(let i = particles.length - 1; i >= 0; i--) { let p = particles[i]; p.x += p.vx; p.y += p.vy; p.life -= p.decay; if(p.life <= 0) { particles.splice(i, 1); } else { pCtx.fillStyle = p.color + p.life + `)`; pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2); pCtx.fill(); } } if (!isRevealed || particles.length > 0) requestAnimationFrame(updateParticles); }
+
+        function startParchmentSequence() { 
+            document.getElementById('dust-title').textContent = dict[selectedLang].dustTitle; document.getElementById('dust-sub').textContent = dict[selectedLang].dustSub; document.getElementById('brush-btn').textContent = dict[selectedLang].brushBtn; document.getElementById('secret-text').textContent = dict[selectedLang].secretText; 
+            renderRealisticDust(); updateParticles(); 
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => { let audioContext = new (window.AudioContext || window.webkitAudioContext)(); let analyser = audioContext.createAnalyser(); let microphone = audioContext.createMediaStreamSource(stream); microphone.connect(analyser); analyser.fftSize = 256; const dataArray = new Uint8Array(analyser.frequencyBinCount); function detectBlow() { if(isRevealed || isBrushingMode) return; analyser.getByteFrequencyData(dataArray); let sum = 0; for(let i = 0; i < analyser.frequencyBinCount; i++) sum += dataArray[i]; if ((sum / analyser.frequencyBinCount) > 70) blowAwayDust(); blowAnimationFrame = requestAnimationFrame(detectBlow); } detectBlow(); }).catch(err => { enableBrushMode(); }); 
+        }
+        
+        brushBtn.addEventListener('click', () => { enableBrushMode(); }); 
+        function enableBrushMode() { if(isBrushingMode) return; isBrushingMode = true; brushBtn.style.display = 'none'; if(blowAnimationFrame) cancelAnimationFrame(blowAnimationFrame); let isDrawing = false; let lastX = 0, lastY = 0; dustCanvas.addEventListener('mousedown', (e) => { isDrawing = true; lastX = e.offsetX; lastY = e.offsetY; }); dustCanvas.addEventListener('mouseup', () => isDrawing = false); dustCanvas.addEventListener('mousemove', (e) => { if(isDrawing && !isRevealed) { eraseCanvasSoftly(lastX, lastY, e.offsetX, e.offsetY); lastX = e.offsetX; lastY = e.offsetY; } }); dustCanvas.addEventListener('touchstart', (e) => { isDrawing = true; const rect = dustCanvas.getBoundingClientRect(); lastX = e.touches[0].clientX - rect.left; lastY = e.touches[0].clientY - rect.top; }); dustCanvas.addEventListener('touchend', () => isDrawing = false); dustCanvas.addEventListener('touchmove', (e) => { if(isDrawing && !isRevealed) { e.preventDefault(); const rect = dustCanvas.getBoundingClientRect(); const currentX = e.touches[0].clientX - rect.left; const currentY = e.touches[0].clientY - rect.top; eraseCanvasSoftly(lastX, lastY, currentX, currentY); lastX = currentX; lastY = currentY; } }, { passive: false }); }
+        
+        function eraseCanvasSoftly(x1, y1, x2, y2) { ctx.globalCompositeOperation = 'destination-out'; ctx.lineWidth = 80; ctx.shadowBlur = 30; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.shadowBlur = 0; spawnParticles(x2, y2, 3, false); if(sweepAudio.paused || sweepAudio.currentTime > 0.4) { sweepAudio.currentTime = 0; sweepAudio.play().catch(e=>{}); } checkCanvasCompletion(); }
+        function blowAwayDust() { ctx.globalCompositeOperation = 'destination-out'; ctx.shadowBlur = 50; ctx.shadowColor = 'rgba(0,0,0,1)'; let randX = Math.random() * dustCanvas.width; let randY = Math.random() * dustCanvas.height; for(let i=0; i<4; i++) { ctx.beginPath(); ctx.arc(randX, randY, 60 + Math.random()*80, 0, Math.PI * 2); ctx.fill(); } ctx.shadowBlur = 0; spawnParticles(randX, randY, 15, true); if(blowAudio.paused || blowAudio.currentTime > 0.4) { blowAudio.currentTime = 0; blowAudio.play().catch(e=>{}); } checkCanvasCompletion(); }
+        let checkThrottle = 0; function checkCanvasCompletion() { checkThrottle++; if(checkThrottle % 10 !== 0) return; const imgData = ctx.getImageData(0, 0, dustCanvas.width, dustCanvas.height).data; let transparentCount = 0; for (let i = 3; i < imgData.length; i += 4) { if (imgData[i] < 128) transparentCount++; } if ((transparentCount / (imgData.length / 4)) * 100 > 50 && !isRevealed) { isRevealed = true; completeReveal(); } }
+        function completeReveal() { dustCanvas.style.opacity = '0'; instructionBox.style.opacity = '0'; brushBtn.style.opacity = '0'; secretText.style.opacity = '1'; setTimeout(() => { scrollOverlay.style.opacity = '0'; setTimeout(() => { scrollOverlay.style.display = 'none'; startMainExperience(); }, 1500); }, 5000); }
+        function startMainExperience() { isMainExperienceStarted = true; document.getElementById('main-ui').classList.add('show-ui'); document.getElementById('top-controls').classList.add('show'); langToggleBtn.textContent = selectedLang === 'vi' ? 'English' : 'Tiếng Việt'; model.setAttribute('camera-controls', ''); model.cameraOrbit = "0deg 75deg 100%"; if (selectedLang === 'vi') audioVn.play().catch(e=>e); else audioEn.play().catch(e=>e); }
+        
+        restartBtn.addEventListener('click', () => { window.location.reload(); });
+
+        // ================= HỆ THỐNG QUẢN LÝ CỬA SỔ & DỪNG TÁC VỤ AI =================
+        function closeAllPopups() {
+            document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
+            overlayDetail.classList.remove('active'); overlayGuide.classList.remove('active');
+            detailBtn.classList.remove('active-state'); guideBtn.classList.remove('active-state'); qaBtn.classList.remove('active-state'); mvBtn.classList.remove('active-state'); roleplayBtn.classList.remove('active-state');
+            body.classList.remove('info-active'); stopAllAITasks();
+            if (isMainExperienceStarted && audioVn.paused && audioEn.paused) { if (selectedLang === 'vi') audioVn.play().catch(e=>e); else audioEn.play().catch(e=>e); }
+        }
+        window.closeAllPopups = closeAllPopups; 
+
+        function stopAllAITasks() { 
+            if (currentTTSAudio) { currentTTSAudio.pause(); currentTTSAudio.src = ""; } 
+            if (typingInterval) { clearInterval(typingInterval); typingInterval = null; } 
+            if (mvAnimInterval) { clearInterval(mvAnimInterval); mvAnimInterval = null; } 
+            if (currentAbortController) { currentAbortController.abort(); } 
+            if (rpAbortController) { rpAbortController.abort(); } 
+            stopProgressBar('qa-progress', 'qa-bar', 'qa-text'); 
+            stopProgressBar('mv-progress', 'mv-bar', 'mv-text'); 
+            stopProgressBar('rp-progress', 'rp-bar', 'rp-text'); 
+        }
+
+        document.querySelectorAll('.lang-btn').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); selectedLang = btn.getAttribute('data-lang'); document.getElementById('main-title').textContent = dict[selectedLang].title; startBtn.textContent = dict[selectedLang].startBtn; restartBtn.textContent = dict[selectedLang].restartBtn; detailBtn.textContent = dict[selectedLang].detailBtn; guideBtn.textContent = dict[selectedLang].guideBtn; qaBtn.textContent = dict[selectedLang].qaBtn; mvBtn.textContent = dict[selectedLang].mvBtn; roleplayBtn.textContent = dict[selectedLang].roleplayBtn; document.querySelectorAll('.lang-vi').forEach(el => el.style.display = (selectedLang === 'vi') ? 'block' : 'none'); document.querySelectorAll('.lang-en').forEach(el => el.style.display = (selectedLang === 'en') ? 'block' : 'none'); }); });
+        langToggleBtn.addEventListener('click', () => { audioVn.pause(); audioEn.pause(); stopAllAITasks(); selectedLang = selectedLang === 'vi' ? 'en' : 'vi'; langToggleBtn.textContent = selectedLang === 'vi' ? 'English' : 'Tiếng Việt'; detailBtn.textContent = dict[selectedLang].detailBtn; guideBtn.textContent = dict[selectedLang].guideBtn; qaBtn.textContent = dict[selectedLang].qaBtn; mvBtn.textContent = dict[selectedLang].mvBtn; roleplayBtn.textContent = dict[selectedLang].roleplayBtn; document.querySelectorAll('.lang-vi').forEach(el => el.style.display = (selectedLang === 'vi') ? 'block' : 'none'); document.querySelectorAll('.lang-en').forEach(el => el.style.display = (selectedLang === 'en') ? 'block' : 'none'); audioVn.currentTime = 0; audioEn.currentTime = 0; if (isMainExperienceStarted) { if (selectedLang === 'vi') audioVn.play().catch(e=>e); else audioEn.play().catch(e=>e); } });
+        detailBtn.addEventListener('click', (e) => { e.stopPropagation(); const wasActive = overlayDetail.classList.contains('active'); closeAllPopups(); if (!wasActive) { overlayDetail.classList.add('active'); detailBtn.classList.add('active-state'); detailBtn.textContent = dict[selectedLang].closeBtn; body.classList.add('info-active'); } });
+        guideBtn.addEventListener('click', (e) => { e.stopPropagation(); const wasActive = overlayGuide.classList.contains('active'); closeAllPopups(); if (!wasActive) { overlayGuide.classList.add('active'); guideBtn.classList.add('active-state'); guideBtn.textContent = dict[selectedLang].closeBtn; body.classList.add('info-active'); } });
+        document.getElementById('qa-input').addEventListener('focus', () => { setTimeout(() => document.getElementById('qa-input').scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); });
+        document.getElementById('mv-input').addEventListener('focus', () => { setTimeout(() => document.getElementById('mv-input').scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); });
+
+        // ================= CƠ CHẾ THANH TIẾN ĐỘ (%) CẢI TIẾN =================
+        function startProgressBar(containerId, barId, textId, timeInSeconds) { 
+            if (progressHideTimeout) { clearTimeout(progressHideTimeout); progressHideTimeout = null; }
+            document.getElementById(containerId).style.display = 'block'; 
+            let bar = document.getElementById(barId); let textEl = document.getElementById(textId); let width = 0; 
+            bar.style.width = width + '%'; if(textEl) textEl.textContent = width + '%'; 
+            if(progressInterval) clearInterval(progressInterval); 
+            let stepTime = (timeInSeconds * 1000) / 95; 
+            progressInterval = setInterval(() => { 
+                if (width < 95) { width += 1; bar.style.width = width + '%'; if(textEl) textEl.textContent = "Đang xử lý... " + width + '%'; } 
+            }, stepTime); 
+        }
+        
+        function stopProgressBar(containerId, barId, textId) { 
+            if(progressInterval) clearInterval(progressInterval); 
+            let bar = document.getElementById(barId); let textEl = document.getElementById(textId); 
+            if(bar) bar.style.width = '100%'; if(textEl) textEl.textContent = 'Hoàn tất 100%'; 
+            if (progressHideTimeout) clearTimeout(progressHideTimeout);
+            progressHideTimeout = setTimeout(() => { 
+                if(document.getElementById(containerId)) document.getElementById(containerId).style.display = 'none'; 
+            }, 1200); 
+        }
+
+        function renderSuggestions(arraySug, containerId, inputId, endpointMode) { const container = document.getElementById(containerId); container.innerHTML = ''; arraySug.forEach(sug => { let btn = document.createElement('button'); btn.className = 'prompt-chip'; btn.textContent = sug; btn.onclick = (e) => { e.stopPropagation(); document.getElementById(inputId).value = sug; sendToAI(sug, endpointMode); }; container.appendChild(btn); }); }
+
+        // ================= GỬI BÁO CÁO VỀ GIÁO VIÊN (ĐÃ GẮN NHÃN VÕ NGUYÊN GIÁP) =================
+        async function sendReportToTeacher(type, directHistoryArray = null) {
+            let targetHistory = [];
+            if (directHistoryArray) { targetHistory = directHistoryArray; } else { targetHistory = type.includes('Đa Vũ Trụ') ? mvHistory : rpHistory; }
+            const dataToSend = { playerName: playerName, history: targetHistory, type: type };
+            try { await fetch('https://backen-api-vo-nguyen-giap.onrender.com/save-report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataToSend) }); } catch (err) { console.error("Lỗi gửi báo cáo:", err); }
+        }
+
+        // ================= AI HỎI ĐÁP & ĐA VŨ TRỤ =================
+        qaBtn.addEventListener('click', (e) => { e.stopPropagation(); closeAllPopups(); audioVn.pause(); audioEn.pause(); qaBtn.classList.add('active-state'); document.getElementById('qa-panel').classList.add('active'); document.getElementById('qa-status').textContent = `Chào ${playerName}, bạn cần tra cứu lịch sử gì?`; document.getElementById('qa-input').value = ""; document.getElementById('qa-result').textContent = "Nhấn nút Mic hoặc gõ câu hỏi vào ô bên dưới."; renderSuggestions(dict[selectedLang].qaPrompts, 'qa-prompts', 'qa-input', 'ask'); });
+        document.getElementById('qa-send-btn').addEventListener('click', (e) => { e.stopPropagation(); const txt = document.getElementById('qa-input').value.trim(); if(txt) sendToAI(txt, 'ask'); });
+        document.getElementById('qa-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') document.getElementById('qa-send-btn').click(); });
+
+        mvBtn.addEventListener('click', (e) => { e.stopPropagation(); closeAllPopups(); audioVn.pause(); audioEn.pause(); mvBtn.classList.add('active-state'); document.getElementById('mv-panel').classList.add('active'); mvHistory = []; document.getElementById('mv-img-box').style.display = 'none'; document.getElementById('mv-stats').style.display = 'none'; document.getElementById('mv-status').textContent = `🌌 ĐA VŨ TRỤ ĐÃ SẴN SÀNG, ${playerName.toUpperCase()}`; document.getElementById('mv-input').value = ""; document.getElementById('mv-result').textContent = "Nhập một quyết định thay đổi lịch sử..."; renderSuggestions(dict[selectedLang].mvPrompts, 'mv-prompts', 'mv-input', 'whatif'); });
+        document.getElementById('mv-send-btn').addEventListener('click', (e) => { e.stopPropagation(); const txt = document.getElementById('mv-input').value.trim(); if(txt) sendToAI(txt, 'whatif'); });
+        document.getElementById('mv-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') document.getElementById('mv-send-btn').click(); });
+
+        async function sendToAI(question, mode) {
+            const isMV = (mode === 'whatif');
+            const resBox = isMV ? document.getElementById('mv-result') : document.getElementById('qa-result');
+            const statBox = isMV ? document.getElementById('mv-status') : document.getElementById('qa-status');
+            const progCon = isMV ? 'mv-progress' : 'qa-progress';
+            const progBar = isMV ? 'mv-bar' : 'qa-bar';
+            const textId = isMV ? 'mv-text' : 'qa-text';
+            const sugCon = isMV ? 'mv-prompts' : 'qa-prompts';
+            const inputId = isMV ? 'mv-input' : 'qa-input';
+
+            stopAllAITasks(); 
+            resBox.textContent = "Đang kết nối lượng tử..."; 
+            
+            currentAbortController = new AbortController(); 
+            const myAbortSignal = currentAbortController.signal;
+
+            startProgressBar(progCon, progBar, textId, isMV ? 12 : 5);
+            if(isMV) { document.getElementById('mv-img-box').style.display = 'none'; document.getElementById('mv-stats').style.display = 'none'; }
+
+            try {
+                const payload = isMV ? { history: mvHistory, scenario: question, lang: selectedLang } : { question: question, lang: selectedLang };
+                const response = await fetch(`https://backen-api-vo-nguyen-giap.onrender.com/${mode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: myAbortSignal });
+                const data = await response.json(); 
+                
+                if (myAbortSignal.aborted) return; 
+
+                stopProgressBar(progCon, progBar, textId);
+                if (data.error) throw new Error(data.reply);
+
+                if (isMV) {
+                    mvHistory.push({ role: "user", content: question }); mvHistory.push({ role: "assistant", content: data.reply });
+                    if(mvHistory.length >= 2) document.getElementById('btnExportWhatIf').style.display = 'block'; 
+                    
+                    if (data.successRate !== undefined && data.successRate !== 0) {
+                        document.getElementById('mv-stats').style.display = 'flex'; statBox.textContent = "💻 Đang tính toán mô phỏng...";
+                        let stTime = Date.now(); 
+                        mvAnimInterval = setInterval(() => { 
+                            if (myAbortSignal.aborted) { clearInterval(mvAnimInterval); return; } 
+                            if (Date.now() - stTime > 3000) { 
+                                clearInterval(mvAnimInterval); 
+                                document.getElementById('mv-stat-success').textContent = data.successRate + "%"; 
+                                document.getElementById('mv-stat-casualty').textContent = data.casualties + "%"; 
+                                if (data.imageUrl) { document.getElementById('mv-image').src = data.imageUrl; document.getElementById('mv-img-box').style.display = 'block'; }
+                                renderSuggestions(data.suggestions, sugCon, inputId, mode); 
+                                fetchAndPlayTTS(data.reply, 'onyx', statBox, resBox, "Đang giải mã kết quả...", myAbortSignal); 
+                                return; 
+                            } 
+                            document.getElementById('mv-stat-success').textContent = Math.floor(Math.random() * 100) + "%"; 
+                            document.getElementById('mv-stat-casualty').textContent = Math.floor(Math.random() * 100) + "%"; 
+                        }, 50);
+                    } else { renderSuggestions(data.suggestions, sugCon, inputId, mode); fetchAndPlayTTS(data.reply, 'onyx', statBox, resBox, "Đang truyền tin...", myAbortSignal); }
+                } else { 
+                    // TỰ ĐỘNG GỬI "HỎI ĐÁP" VỀ GOOGLE SHEET (CÓ NHÃN VÕ NGUYÊN GIÁP ĐỂ CHIA TAB)
+                    let qaRecord = [ { role: "user", content: question }, { role: "assistant", content: data.reply } ];
+                    sendReportToTeacher("Hỏi Đáp (Võ Nguyên Giáp)", qaRecord);
+                    
+                    renderSuggestions(data.suggestions, sugCon, inputId, mode); fetchAndPlayTTS(data.reply, 'onyx', statBox, resBox, "Đang truyền tin...", myAbortSignal); 
+                }
+            } catch (error) { 
+                if (error.name === 'AbortError' || myAbortSignal.aborted) return; 
+                stopProgressBar(progCon, progBar, textId); resBox.textContent = "Mất kết nối mạng. Xin hãy thử lại!"; statBox.textContent = "Lỗi"; 
+            }
+        }
+
+        // ================= TRÒ CHƠI NHẬP VAI =================
+        roleplayBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); closeAllPopups(); audioVn.pause(); audioEn.pause();
+            roleplayBtn.classList.add('active-state'); document.getElementById('roleplay-panel').classList.add('active');
+            rpHistory = []; rpTurn = 1; document.getElementById('rp-options-container').innerHTML = ''; document.getElementById('btnExportRoleplay').style.display = 'none'; 
+            document.getElementById('rp-npc-text').textContent = "Đang kết nối đến Sở chỉ huy tiền phương...";
+            fetchRoleplayTurnData(null).then(data => renderRoleplayTurn(data)).catch(e => { document.getElementById('rp-npc-text').textContent = "Lỗi kết nối. Không thể bắt đầu."; }); 
+        });
+
+        async function fetchRoleplayTurnData(userChoiceText = null) {
+            document.getElementById('rp-options-container').innerHTML = ''; startProgressBar('rp-progress', 'rp-bar', 'rp-text', 5);
+            if (userChoiceText) rpHistory.push({ role: "user", content: `Tôi quyết định: ${userChoiceText}` });
+            
+            if (rpAbortController) rpAbortController.abort(); 
+            rpAbortController = new AbortController();
+            
+            const response = await fetch('https://backen-api-vo-nguyen-giap.onrender.com/roleplay', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ history: rpHistory, turn: rpTurn, lang: selectedLang }), signal: rpAbortController.signal });
+            stopProgressBar('rp-progress', 'rp-bar', 'rp-text'); 
+            return await response.json();
+        }
+
+        async function handlePlayerChoice(choiceText, event) {
+            if(event) event.stopPropagation(); document.querySelectorAll('.rp-option-btn').forEach(b => b.disabled = true);
+            stopAllAITasks();
+            document.getElementById('rp-npc-text').innerHTML = `<span style="color:#e5c158; font-weight:bold;">Đại Tướng:</span> `;
+            try {
+                const nextTurnPromise = fetchRoleplayTurnData(choiceText);
+                await fetchAndPlayTTS(`${choiceText}`, 'onyx', null, document.getElementById('rp-npc-text'), "", rpAbortController.signal);
+                const data = await nextTurnPromise; 
+                if (rpAbortController.signal.aborted) return;
+                renderRoleplayTurn(data);
+            } catch (err) { 
+                if (err.name === 'AbortError' || rpAbortController.signal.aborted) return; 
+                stopProgressBar('rp-progress', 'rp-bar', 'rp-text'); document.getElementById('rp-npc-text').textContent = "Mất kết nối mạng. Hãy thử lại."; 
+            }
+        }
+
+        async function renderRoleplayTurn(data) {
+            if (data.error) { document.getElementById('rp-npc-text').textContent = "Hệ thống bị ngắt kết nối."; return; }
+            rpHistory.push({ role: "assistant", content: JSON.stringify(data) }); 
+            
+            document.getElementById('rp-turn-text').textContent = `Lượt: ${rpTurn} / 10`; 
+            document.getElementById('rp-options-container').innerHTML = '';
+
+            if (data.isGameOver || rpTurn >= 10) {
+                document.getElementById('rp-npc-text').innerHTML = `<span style="color:#ff6b6b; font-weight:bold;">KẾT THÚC:</span> ${data.npcDialogue}<br><br><em style="color:#e5c158">${data.endReason}</em>`;
+                document.getElementById('btnExportRoleplay').style.display = 'block'; 
+                await fetchAndPlayTTS(data.npcDialogue + ". " + data.endReason, 'alloy', null, null, "", rpAbortController.signal); return;
+            }
+
+            if (!data.choices || data.choices.length === 0) {
+                data.choices = ["Tiếp tục xem diễn biến..."];
+            }
+
+            data.choices.forEach((choice) => {
+                let cleanChoice = choice.replace(/^([0-9a-zA-ZÀ-ỹ][\.\-\)]\s*)+/g, '').trim(); cleanChoice = cleanChoice.replace(/^-\s*/, '');
+                const btn = document.createElement('button'); btn.className = 'rp-option-btn'; btn.textContent = cleanChoice;
+                btn.onclick = (e) => handlePlayerChoice(cleanChoice, e); document.getElementById('rp-options-container').appendChild(btn);
+            });
+            rpTurn++; document.getElementById('rp-npc-text').innerHTML = `<span style="color:#a894c2; font-weight:bold;">NPC:</span> `; 
+            await fetchAndPlayTTS(data.npcDialogue, 'alloy', null, document.getElementById('rp-npc-text'), "", rpAbortController.signal);
+        }
+
+        // ================= HÀM XỬ LÝ ÂM THANH & CHỮ CHUNG =================
+        async function fetchAndPlayTTS(textToSpeak, voiceType, statusElement, textElement, speakingMsg, abortSignal = null) {
+            return new Promise(async (resolve) => {
+                if (!textToSpeak) { resolve(); return; }
+                if (abortSignal && abortSignal.aborted) { resolve(); return; } 
+                
+                const cleanText = textToSpeak.replace(/[*#_]/g, ''); 
+                let fetchSignal = abortSignal;
+                if (!fetchSignal) {
+                    if (!currentAbortController || currentAbortController.signal.aborted) { currentAbortController = new AbortController(); }
+                    fetchSignal = currentAbortController.signal;
+                }
+
+                let prefix = ""; if (textElement && textElement.id === 'rp-npc-text') { prefix = (voiceType === 'onyx') ? `<span style="color:#e5c158; font-weight:bold;">Đại Tướng:</span> ` : `<span style="color:#a894c2; font-weight:bold;">NPC:</span> `; }
+
+                try {
+                    const response = await fetch('https://backen-api-vo-nguyen-giap.onrender.com/speak', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: cleanText, voiceId: voiceType }), signal: fetchSignal });
+                    if (fetchSignal.aborted) { resolve(); return; }
+                    if (!response.ok) { fallbackTypeWriter(textToSpeak, textElement, prefix, resolve, fetchSignal); return; }
+
+                    const audioBlob = await response.blob(); 
+                    if (fetchSignal.aborted) { resolve(); return; }
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    
+                    if (currentTTSAudio) { currentTTSAudio.pause(); currentTTSAudio.removeAttribute('src'); currentTTSAudio.load(); } 
+                    if (typingInterval) clearInterval(typingInterval); 
+                    
+                    currentTTSAudio.src = audioUrl; currentTTSAudio.volume = 1.0; 
+                    currentTTSAudio.onended = () => { if(statusElement) statusElement.textContent = "Hoàn tất."; resolve(); };
+                    currentTTSAudio.onerror = () => { fallbackTypeWriter(textToSpeak, textElement, prefix, resolve, fetchSignal); };
+                    
+                    if(statusElement) statusElement.textContent = speakingMsg; if(textElement) textElement.innerHTML = prefix; 
+                    let playPromise = currentTTSAudio.play(); if (playPromise !== undefined) playPromise.catch(e => { fallbackTypeWriter(textToSpeak, textElement, prefix, resolve, fetchSignal); });
+                    
+                    if(textElement) {
+                        let i = 0; typingInterval = setInterval(() => { 
+                            if (fetchSignal.aborted) { clearInterval(typingInterval); resolve(); return; } 
+                            if (i < textToSpeak.length) { textElement.innerHTML += textToSpeak.charAt(i); i++; textElement.scrollTop = textElement.scrollHeight; } 
+                            else { clearInterval(typingInterval); typingInterval = null; resolve(); } 
+                        }, 40); 
+                    }
+                } catch (err) { 
+                    if (err.name === 'AbortError' || fetchSignal.aborted) { resolve(); return; }
+                    fallbackTypeWriter(textToSpeak, textElement, prefix, resolve, fetchSignal); 
+                }
+            });
+        }
+
+        function fallbackTypeWriter(text, element, prefix, resolve, fetchSignal) {
+            if (!element || (fetchSignal && fetchSignal.aborted)) { resolve(); return; }
+            if (typingInterval) clearInterval(typingInterval); element.innerHTML = prefix; let i = 0;
+            typingInterval = setInterval(() => { 
+                if (fetchSignal && fetchSignal.aborted) { clearInterval(typingInterval); resolve(); return; }
+                if (i < text.length) { element.innerHTML += text.charAt(i); i++; element.scrollTop = element.scrollHeight; } 
+                else { clearInterval(typingInterval); typingInterval = null; resolve(); } 
+            }, 30);
+        }
+
+        window.addEventListener('click', (e) => { if (!e.target.closest('.overlay-layer') && !e.target.closest('.game-panel') && !e.target.closest('#main-ui') && !e.target.closest('#top-controls') && !e.target.closest('#intro-screen')) { closeAllPopups(); } });
+
+        // ================= XUẤT BÁO CÁO =================
+        function exportPDF(contentHTML, fileName) {
+            const printContent = `
+                <div style="padding: 30px; font-family: 'Times New Roman', serif; color: #000; background: #fff; width: 100%; max-width: 800px; margin: auto;">
+                    <h2 style="font-size: 24px; color: #b33939; text-align: center; border-bottom: 2px solid #b33939; padding-bottom: 10px; margin-bottom: 20px;">
+                        BÁO CÁO HỌC TẬP LỊCH SỬ - VÕ NGUYÊN GIÁP
+                    </h2>
+                    <h3 style="font-size: 18px; color: #333;">Người học: ${playerName}</h3>
+                    <div style="font-size: 16px; line-height: 1.6; text-align: justify;">
+                        ${contentHTML}
+                    </div>
+                </div>
+            `;
+            const opt = { margin: 0.5, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } }; 
+            html2pdf().set(opt).from(printContent).save();
+        }
+        
+        document.getElementById('btnExportWhatIf').addEventListener('click', () => { 
+            sendReportToTeacher('Đa Vũ Trụ (Võ Nguyên Giáp)'); 
+            let html = "<h4>Hành trình Đa vũ trụ</h4><ul>"; 
+            mvHistory.forEach(h => { html += `<li style="margin-bottom:10px;"><b>${h.role === 'user' ? 'Hỏi' : 'Phân tích'}:</b> ${h.content}</li>`; }); 
+            html += "</ul>"; 
+            exportPDF(html, 'Bao_Cao_Da_Vu_Tru_Vo_Nguyen_Giap.pdf'); 
+        });
+
+        document.getElementById('btnExportRoleplay').addEventListener('click', () => { 
+            sendReportToTeacher('Nhập Vai (Võ Nguyên Giáp)'); 
+            let html = "<h4>Báo cáo Quyết sách Nhập vai</h4><ul>"; 
+            rpHistory.forEach(h => { 
+                if(h.role === 'user') html += `<li style="margin-bottom:10px;"><b>Đại Tướng:</b> ${h.content}</li>`; 
+                else { let d = JSON.parse(h.content); html += `<li style="margin-bottom:10px;"><b>Cục diện:</b> ${d.npcDialogue}</li>`; if(d.isGameOver) html += `<li style="margin-bottom:10px;"><b>TỔNG KẾT:</b> ${d.endReason}</li>`; } 
+            }); 
+            html += "</ul>"; 
+            exportPDF(html, 'Hoc_Ba_Lich_Su_Vo_Nguyen_Giap.pdf'); 
+        });
+
+        // ================= TÍNH NĂNG NHẬN DIỆN GIỌNG NÓI =================
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = true; 
-        }
-
-        langBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                langBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                selectedLang = btn.getAttribute('data-lang');
-                document.getElementById('main-title').textContent = dict[selectedLang].title;
-                startBtn.textContent = dict[selectedLang].startBtn;
-                restartBtn.textContent = dict[selectedLang].restartBtn;
-                muteBtn.textContent = isMuted ? dict[selectedLang].muteOff : dict[selectedLang].muteOn;
+            const recognition = new SpeechRecognition(); recognition.continuous = false; recognition.interimResults = true; 
+            function setupMicButton(btnId, inputId) {
+                const btn = document.getElementById(btnId); const input = document.getElementById(inputId);
+                const originalBg = btn.style.background; const originalColor = btn.style.color; let isRecording = false;
                 
-                // Cập nhật text ngôn ngữ trong màn hình
-                document.querySelectorAll('.lang-vi').forEach(el => el.style.display = (selectedLang === 'vi') ? 'block' : 'none');
-                document.querySelectorAll('.lang-en').forEach(el => el.style.display = (selectedLang === 'en') ? 'block' : 'none');
-                
-                // Cập nhật câu hỏi gợi ý
-                promptChips.forEach((chip, index) => {
-                    chip.textContent = dict[selectedLang].prompts[index];
-                    chip.setAttribute('data-query', dict[selectedLang].prompts[index]);
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (isRecording) { recognition.stop(); return; }
+                    recognition.lang = selectedLang === 'vi' ? 'vi-VN' : 'en-US'; input.value = ""; 
+                    try { recognition.start(); isRecording = true; btn.innerHTML = selectedLang === 'vi' ? "⏹️ Chốt Câu Hỏi" : "⏹️ Stop & Confirm"; btn.style.background = "#ff6b6b"; btn.style.color = "#fff"; } catch (err) { console.log("Mic đang bận."); }
+                    recognition.onresult = (event) => { let finalTranscript = ''; let interimTranscript = ''; for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) { finalTranscript += event.results[i][0].transcript; } else { interimTranscript += event.results[i][0].transcript; } } input.value = finalTranscript + interimTranscript; };
+                    recognition.onspeechend = () => { recognition.stop(); };
+                    recognition.onend = () => { isRecording = false; btn.innerHTML = "🎙️ Bật Mic"; btn.style.background = originalBg; btn.style.color = originalColor; };
+                    recognition.onerror = (event) => { console.error("Lỗi Mic:", event.error); isRecording = false; btn.innerHTML = "🎙️ Bật Mic"; btn.style.background = originalBg; btn.style.color = originalColor; if(event.error === 'not-allowed') { alert(selectedLang === 'vi' ? "Vui lòng cấp quyền sử dụng Micro trên trình duyệt!" : "Please allow microphone access!"); } };
                 });
-                resetButtons();
-            });
-        });
-
-        startBtn.addEventListener('click', () => {
-            introScreen.style.opacity = '0'; introScreen.style.visibility = 'hidden';
-            mainUi.classList.add('show-ui'); topControls.classList.add('show'); 
-            langToggleBtn.textContent = selectedLang === 'vi' ? 'English' : 'Tiếng Việt';
-            model.setAttribute('camera-controls', ''); model.cameraOrbit = "0deg 75deg 100%";
-            tutorialHand.classList.add('show'); // Hiện hướng dẫn vuốt
-            playBackgroundAudio();
-        });
-
-        // Tắt bàn tay hướng dẫn khi người dùng bắt đầu tương tác với mô hình
-        model.addEventListener('mousedown', () => tutorialHand.classList.remove('show'));
-        model.addEventListener('touchstart', () => tutorialHand.classList.remove('show'));
-
-        function playBackgroundAudio() {
-            if (isMuted) return;
-            if (selectedLang === 'vi') { audioVn.play().catch(e => console.log(e)); audioEn.pause(); audioEn.currentTime = 0; } 
-            else { audioEn.play().catch(e => console.log(e)); audioVn.pause(); audioVn.currentTime = 0; }
-        }
-
-        // Logic Bật/Tắt âm nhạc nền
-        muteBtn.addEventListener('click', () => {
-            isMuted = !isMuted;
-            if (isMuted) {
-                audioVn.pause(); audioEn.pause();
-                muteBtn.textContent = dict[selectedLang].muteOff;
-            } else {
-                playBackgroundAudio();
-                muteBtn.textContent = dict[selectedLang].muteOn;
             }
-        });
-
-        function stopAllAITasks() {
-            if (currentTTSAudio) { 
-                currentTTSAudio.pause(); 
-                currentTTSAudio.src = ""; 
-            }
-            if (typingInterval) { 
-                clearInterval(typingInterval); 
-                typingInterval = null; 
-            }
-            if (currentAbortController) {
-                currentAbortController.abort(); 
-            }
+            setupMicButton('qa-mic-btn', 'qa-input'); setupMicButton('mv-mic-btn', 'mv-input');
+        } else {
+            const noMicMsg = () => alert(selectedLang === 'vi' ? "Trình duyệt của bạn không hỗ trợ nhận diện giọng nói." : "Speech recognition is not supported in this browser.");
+            document.getElementById('qa-mic-btn').addEventListener('click', noMicMsg); document.getElementById('mv-mic-btn').addEventListener('click', noMicMsg);
         }
-
-        function stopAllAudio() {
-            audioVn.pause(); audioEn.pause();
-            stopAllAITasks();
-        }
-
-        langToggleBtn.addEventListener('click', () => {
-            stopAllAudio();
-            selectedLang = selectedLang === 'vi' ? 'en' : 'vi';
-            langToggleBtn.textContent = selectedLang === 'vi' ? 'English' : 'Tiếng Việt';
-            restartBtn.textContent = dict[selectedLang].restartBtn;
-            muteBtn.textContent = isMuted ? dict[selectedLang].muteOff : dict[selectedLang].muteOn;
-            resetButtons();
-            document.querySelectorAll('.lang-vi').forEach(el => el.style.display = (selectedLang === 'vi') ? 'block' : 'none');
-            document.querySelectorAll('.lang-en').forEach(el => el.style.display = (selectedLang === 'en') ? 'block' : 'none');
-            
-            promptChips.forEach((chip, index) => {
-                chip.textContent = dict[selectedLang].prompts[index];
-                chip.setAttribute('data-query', dict[selectedLang].prompts[index]);
-            });
-
-            if(!isMuted) playBackgroundAudio();
-        });
-
-        restartBtn.addEventListener('click', () => {
-            introScreen.style.opacity = '1'; introScreen.style.visibility = 'visible';
-            mainUi.classList.remove('show-ui'); topControls.classList.remove('show'); 
-            tutorialHand.classList.remove('show');
-            model.removeAttribute('camera-controls'); model.cameraOrbit = "0deg 75deg 140%";
-            stopAllAudio(); audioVn.currentTime = 0; audioEn.currentTime = 0;
-            overlayDetail.classList.remove('active'); overlayGuide.classList.remove('active');
-            aiPanel.classList.remove('active'); body.classList.remove('info-active');
-            resetButtons();
-        });
-
-        function resetButtons() {
-            detailBtn.textContent = dict[selectedLang].detailBtn; detailBtn.classList.remove('active-state');
-            guideBtn.textContent = dict[selectedLang].guideBtn; guideBtn.classList.remove('active-state');
-            aiBtn.textContent = dict[selectedLang].aiBtn; aiBtn.classList.remove('active-state');
-            aiTextInput.placeholder = dict[selectedLang].placeholder;
-            aiRetryBtn.textContent = dict[selectedLang].btnMicText;
-        }
-
-        detailBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); overlayGuide.classList.remove('active'); aiPanel.classList.remove('active');
-            if(recognition) recognition.stop(); overlayDetail.classList.toggle('active');
-            if (overlayDetail.classList.contains('active')) { resetButtons(); detailBtn.textContent = dict[selectedLang].closeBtn; detailBtn.classList.add('active-state'); body.classList.add('info-active'); } 
-            else { resetButtons(); body.classList.remove('info-active'); }
-        });
-
-        guideBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); overlayDetail.classList.remove('active'); aiPanel.classList.remove('active');
-            if(recognition) recognition.stop(); overlayGuide.classList.toggle('active');
-            if (overlayGuide.classList.contains('active')) { resetButtons(); guideBtn.textContent = dict[selectedLang].closeBtn; guideBtn.classList.add('active-state'); body.classList.add('info-active'); } 
-            else { resetButtons(); body.classList.remove('info-active'); }
-        });
-
-        // ================= LOGIC AI HỎI ĐÁP Q&A =================
-
-        aiBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); overlayDetail.classList.remove('active'); overlayGuide.classList.remove('active');
-            stopAllAITasks(); // Chỉ dừng AI, giữ nguyên nhạc nền
-            aiPanel.classList.add('active'); body.classList.remove('info-active'); aiBtn.classList.add('active-state');
-            
-            aiStatus.textContent = selectedLang === 'vi' ? "Hệ thống AI đang sẵn sàng" : "AI System Ready";
-            aiResultText.textContent = selectedLang === 'vi' ? "Nhấn nút Mic để nói hoặc gõ câu hỏi vào ô dưới." : "Click Mic to speak or type below.";
-            aiTextInput.value = "";
-            aiConfirmBtn.style.display = 'none';
-        });
-
-        function startListeningText() {
-            if (!recognition) { aiStatus.textContent = dict[selectedLang].aiNoSupport; return; }
-            stopAllAITasks(); 
-
-            finalTranscript = '';
-            aiResultText.textContent = "...";
-            aiStatus.textContent = dict[selectedLang].aiListening;
-            aiConfirmBtn.style.display = 'none';
-
-            recognition.lang = selectedLang === 'vi' ? 'vi-VN' : 'en-US';
-            try { recognition.start(); } catch(err) { console.log(err); }
-        }
-
-        if (recognition) {
-            recognition.onresult = (event) => {
-                let interimTranscript = '';
-                let isFinal = false;
-                
-                finalTranscript = ''; 
-
-                for (let i = 0; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        finalTranscript += event.results[i][0].transcript;
-                        isFinal = true;
-                    } else {
-                        interimTranscript += event.results[i][0].transcript;
-                    }
-                }
-                
-                aiResultText.textContent = `"${finalTranscript + interimTranscript}"`;
-
-                if (isFinal) {
-                    aiStatus.textContent = dict[selectedLang].aiConfirm;
-                    aiConfirmBtn.style.display = 'inline-block';
-                }
-            };
-            recognition.onerror = (event) => {
-                if (event.error !== 'no-speech') { aiStatus.textContent = dict[selectedLang].aiError; }
-            };
-        }
-
-        aiRetryBtn.addEventListener('click', (e) => { e.stopPropagation(); startListeningText(); });
-
-        aiConfirmBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if(!finalTranscript) return;
-            currentTTSAudio.play().catch(()=>{}); 
-            sendQuestionToChatGPT(finalTranscript);
-        });
-
-        aiSendTextBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const textQuestion = aiTextInput.value.trim();
-            if(!textQuestion) {
-                aiStatus.textContent = dict[selectedLang].aiError;
-                return;
-            }
-            aiConfirmBtn.style.display = 'none';
-            currentTTSAudio.play().catch(()=>{}); 
-            sendQuestionToChatGPT(textQuestion);
-        });
-
-        aiTextInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                currentTTSAudio.play().catch(()=>{}); 
-                aiSendTextBtn.click();
-            }
-        });
-
-        // Logic khi bấm vào câu hỏi gợi ý
-        promptChips.forEach(chip => {
-            chip.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const query = chip.getAttribute('data-query');
-                aiTextInput.value = query;
-                currentTTSAudio.play().catch(()=>{}); 
-                sendQuestionToChatGPT(query);
-            });
-        });
-
-        async function sendQuestionToChatGPT(question) {
-            aiStatus.textContent = dict[selectedLang].aiProcessing;
-            aiResultText.textContent = selectedLang === 'vi' ? "Đang kết nối đến máy chủ AI..." : "Connecting to AI server...";
-            
-            stopAllAITasks(); 
-            currentAbortController = new AbortController();
-
-            try {
-                // Đã thêm /ask vào đuôi link
-                const response = await fetch('https://backen-api-vo-nguyen-giap.onrender.com/ask', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question: question, lang: selectedLang }),
-                    signal: currentAbortController.signal 
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    aiResultText.textContent = "⚠️ Lỗi từ AI: " + (data.reply || "Không xác định");
-                    aiStatus.textContent = "Error";
-                    return;
-                }
-                
-                aiResultText.textContent = selectedLang === 'vi' ? "Đang nạp giọng nói..." : "Loading voice...";
-                await aiSpeakResponse(data.reply); 
-
-            } catch (error) {
-                if (error.name === 'AbortError') return; 
-                console.error("Lỗi kết nối:", error);
-                aiResultText.textContent = selectedLang === 'vi' ? "Mất kết nối hoàn toàn. Hãy kiểm tra lại kết nối mạng!" : "Error connecting to backend server.";
-                aiStatus.textContent = "Error";
-            }
-        }
-
-        async function aiSpeakResponse(textToSpeak) {
-            const cleanText = textToSpeak.replace(/[*#_]/g, ''); 
-
-            try {
-                // Đã thêm /speak vào đuôi link
-                const response = await fetch('https://backen-api-vo-nguyen-giap.onrender.com/speak', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: cleanText }),
-                    signal: currentAbortController.signal 
-                });
-
-                if (!response.ok) throw new Error("Lỗi tải âm thanh");
-
-                const audioBlob = await response.blob();
-                const audioUrl = URL.createObjectURL(audioBlob);
-                
-                stopAllAITasks(); 
-                
-                currentTTSAudio.src = audioUrl;
-                currentTTSAudio.volume = 1.0; 
-                currentTTSAudio.onended = () => {
-                    aiStatus.textContent = selectedLang === 'vi' ? "Bạn muốn hỏi thêm điều gì không?" : "Anything else you want to ask?";
-                };
-                
-                aiStatus.textContent = dict[selectedLang].aiSpeaking;
-                aiResultText.textContent = ""; 
-                
-                currentTTSAudio.play().catch(e => console.log("Lỗi phát audio:", e));
-                
-                let i = 0;
-                typingInterval = setInterval(() => {
-                    if (i < textToSpeak.length) {
-                        aiResultText.textContent += textToSpeak.charAt(i);
-                        i++;
-                        aiResultText.scrollTop = aiResultText.scrollHeight; 
-                    } else {
-                        clearInterval(typingInterval); 
-                        typingInterval = null;
-                    }
-                }, 35); 
-                
-            } catch (err) {
-                if (err.name === 'AbortError') return; 
-                console.error("Lỗi phát giọng nói OpenAI:", err);
-                aiStatus.textContent = dict[selectedLang].aiError;
-            }
-        }
-
-        aiCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); closeAiSession(); });
-
-        function closeAiSession() {
-            if(recognition) recognition.stop();
-            stopAllAITasks(); // Chỉ dừng AI, nhạc nền vẫn giữ nguyên nếu đang bật
-            
-            aiPanel.classList.remove('active');
-            aiBtn.classList.remove('active-state');
-            resetButtons();
-        }
-
-        window.addEventListener('click', (e) => {
-            if (!e.target.closest('.overlay-layer') && !e.target.closest('#main-ui') && !e.target.closest('#top-controls') && !e.target.closest('#ai-panel')) {
-                overlayDetail.classList.remove('active'); 
-                overlayGuide.classList.remove('active');
-                
-                body.classList.remove('info-active'); 
-                
-                if (aiPanel.classList.contains('active')) { 
-                    closeAiSession(); 
-                } else { 
-                    resetButtons(); 
-                }
-            }
-        });
     </script>
 </body>
 </html>
